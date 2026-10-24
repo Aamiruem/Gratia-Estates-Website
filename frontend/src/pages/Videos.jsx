@@ -1,4 +1,13 @@
-import { Check, Pencil, Play, Plus, Sparkles, Trash2, X } from "lucide-react";
+import {
+  CalendarCheck,
+  Check,
+  Pencil,
+  Play,
+  Plus,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SEO from "../components/SEO";
 import VideoPreview from "../components/VideoPreview";
@@ -113,12 +122,14 @@ export default function Videos() {
     const loadVideos = async () => {
       const result = await fetchVideos();
       if (!active) return;
-      setVideos(result.error ? sampleVideos : result.videos);
-      setError(
-        result.error
-          ? `The shared video library could not be loaded: ${result.error}`
-          : "",
-      );
+      // If the library is unreachable, visitors still see the sample videos;
+      // the technical reason goes to the console, not the page.
+      if (result.error) {
+        console.error("Video library could not be loaded.", result.error);
+        setVideos(sampleVideos);
+      } else {
+        setVideos(result.videos);
+      }
     };
     loadVideos();
     authApi
@@ -133,8 +144,8 @@ export default function Videos() {
       })
       .catch((sessionError) => {
         if (!active || sessionError.status === 401) return;
+        // Visitors never need to see owner sign-in problems.
         console.error("Could not restore owner sign-in.", sessionError);
-        setError(`Could not check owner sign-in: ${sessionError.message}`);
       })
       .finally(() => {
         if (active) setAuthLoading(false);
@@ -718,6 +729,43 @@ export default function Videos() {
               </div>
             )
           )}
+        </div>
+      </section>
+
+      <section className="pb-16 sm:pb-20">
+        <div className="container-luxury">
+          <div className="relative isolate grid items-center gap-6 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d1b2a] via-[#142536] to-[#24405a] p-6 text-white sm:p-10 lg:grid-cols-[1.3fr_1fr]">
+            <div
+              className="pointer-events-none absolute -right-20 -top-20 -z-10 size-72 rounded-full bg-[#c9a45c]/25 blur-3xl"
+              aria-hidden="true"
+            />
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[.2em] text-[#e1c98f]">
+                Seen something you like?
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-semibold !text-white sm:text-3xl">
+                Book a guided site visit
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/70">
+                Videos are a great start. Visit in person with our team to see
+                the location, layouts and amenities before you decide.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#c9a45c] px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-[#142536] transition hover:bg-[#e1c98f]"
+              >
+                <CalendarCheck size={16} aria-hidden="true" /> Plan a visit
+              </Link>
+              <Link
+                to="/projects"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
+              >
+                Browse projects
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </>

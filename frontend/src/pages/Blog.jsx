@@ -1,5 +1,7 @@
+import { ArrowRight, BookOpen, MapPin, Scale, TrendingUp } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import PageHero from "../components/PageHero";
 import SEO from "../components/SEO";
 import {
   BlogCard,
@@ -9,6 +11,12 @@ import {
 } from "../components/blog";
 import { categories, posts } from "../data/blog";
 import useBlogFilters from "../hooks/useBlogFilters";
+
+const topicIcons = {
+  "market-insights": TrendingUp,
+  "buying-guide": Scale,
+  "location-guide": MapPin,
+};
 
 export default function Blog() {
   const filters = useBlogFilters(posts);
@@ -37,31 +45,49 @@ export default function Blog() {
         path="/blog"
       />
 
-      <section className="bg-white py-20 text-charcoal">
-        <div className="container-luxury">
-          <nav
-            aria-label="Breadcrumb"
-            className="flex items-center gap-2 text-xs text-charcoal/50"
-          >
-            <Link to="/" className="hover:text-gold">
-              Home
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span className="text-gold" aria-current="page">
-              Blog
-            </span>
-          </nav>
-          <h1 className="mt-6 font-display text-5xl sm:text-6xl">
-            Gurgaon Property Insights
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-black/60">
-            Practical guides on locations, project stages, costs and paperwork,
-            written for people buying a home or investing in Gurgaon.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        crumb="Blog"
+        eyebrow="Property insights"
+        title="Gurgaon Property Insights"
+        text="Practical guides on locations, project stages, costs and paperwork, written for people buying a home or investing in Gurgaon."
+        aside={
+          <div className="grid gap-3">
+            <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#80602b]">
+              Browse by topic
+            </p>
+            {availableCategories.map((category) => {
+              const Icon = topicIcons[category.id] ?? BookOpen;
+              const count = posts.filter((p) => p.category === category.id).length;
+              return (
+                <Link
+                  key={category.id}
+                  to={`/blog?category=${category.id}`}
+                  className="group flex items-center gap-4 rounded-2xl border border-[#e7e2d8] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[#c9a45c]"
+                >
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#142536] text-[#e1c98f]">
+                    <Icon size={19} aria-hidden="true" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block font-semibold text-[#142536]">
+                      {category.label}
+                    </span>
+                    <span className="text-xs text-[#68717a]">
+                      {count} {count === 1 ? "article" : "articles"}
+                    </span>
+                  </span>
+                  <ArrowRight
+                    size={16}
+                    className="text-[#c9a45c] transition group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        }
+      />
 
-      <section className="pb-24">
+      <section className="py-12 pb-20 sm:py-16">
         <div className="container-luxury space-y-10">
           <BlogFilters
             {...filters}
@@ -73,7 +99,9 @@ export default function Blog() {
           {featured && <FeaturedPost post={featured} />}
 
           {visible.length > 0 ? (
-            <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+            <div
+              className={`grid gap-7 md:grid-cols-2 ${visible.length >= 3 ? "lg:grid-cols-3" : ""}`}
+            >
               {visible.map((post) => (
                 <BlogCard key={post.slug} post={post} />
               ))}

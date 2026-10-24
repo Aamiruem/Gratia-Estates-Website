@@ -315,14 +315,7 @@ export default function ProjectDetails() {
                   </Link>
                 )}
               </div>
-              {savedVideoData.error ? (
-                <p
-                  role="alert"
-                  className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
-                >
-                  {savedVideoData.error}
-                </p>
-              ) : projectVideos.length ? (
+              {projectVideos.length ? (
                 <div className="mt-6 grid gap-5 sm:grid-cols-2">
                   {projectVideos.map((video) => {
                     const videoId = getYouTubeVideoId(video.url);

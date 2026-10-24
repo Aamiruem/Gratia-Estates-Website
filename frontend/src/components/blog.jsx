@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Copy, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, Copy, MessageCircle, Phone } from "lucide-react";
 import { getAuthor, getCategoryLabel } from "../data/blog";
 import { formatDate } from "../utils/format";
 import { getReadingTime } from "../utils/blog";
@@ -102,19 +102,41 @@ export function EnquiryCTA({ post }) {
   const title = post ? `about "${post.title}"` : "about Gurgaon property";
   const text = `Hello Gratia Estates, I would like to enquire ${title}.`;
   return (
-    <section className="mt-16 flex flex-col justify-between gap-5 rounded-3xl bg-charcoal p-8 text-white sm:flex-row sm:items-center sm:p-10">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[.18em] text-gold">Need expert guidance?</p>
-        <h2 className="mt-2 font-display text-2xl">Talk to our Gurgaon property team</h2>
+    <section className="relative isolate mt-16 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d1b2a] via-[#142536] to-[#24405a] p-8 text-white shadow-[0_24px_60px_rgba(13,27,42,.25)] sm:p-10">
+      <div
+        className="pointer-events-none absolute -right-20 -top-20 -z-10 size-72 rounded-full bg-[#c9a45c]/25 blur-3xl"
+        aria-hidden="true"
+      />
+      <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+        <div className="max-w-2xl">
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-[#e1c98f]">
+            Need expert guidance?
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold !text-white sm:text-3xl">
+            Talk to our Gurgaon property team
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-white/70">
+            Share your budget and preferred location. We'll shortlist relevant
+            projects and help you plan a site visit.
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+          <a
+            href={`https://wa.me/919109776155?text=${encodeURIComponent(text)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#c9a45c] px-6 py-3 text-sm font-semibold text-[#142536] transition hover:bg-[#e1c98f]"
+          >
+            <MessageCircle size={17} aria-hidden="true" /> Enquire on WhatsApp
+          </a>
+          <a
+            href="tel:+919109776155"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
+          >
+            <Phone size={17} aria-hidden="true" /> Call +91 91097 76155
+          </a>
+        </div>
       </div>
-      <a
-        href={`https://wa.me/919109776155?text=${encodeURIComponent(text)}`}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-charcoal hover:bg-white"
-      >
-        <MessageCircle size={17} aria-hidden="true" /> Enquire on WhatsApp
-      </a>
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import LegalPage from "../components/LegalPage";
 import SEO from "../components/SEO";
 
 const privacySections = [
@@ -67,64 +67,13 @@ export default function Privacy() {
         description="Privacy Policy for Gratia Estates website and property enquiries."
         path="/privacy-policy"
       />
-      <LegalHero title="Privacy Policy" crumb="Privacy Policy" />
-      <section className="bg-ivory py-16 sm:py-20">
-        <div className="container-luxury max-w-4xl">
-          <div className="rounded-2xl border border-charcoal/10 bg-white p-7 shadow-luxury sm:p-10">
-            <p className="text-[11px] font-bold uppercase tracking-[.2em] text-gold">
-              Last updated: October 7, 2026
-            </p>
-            <p className="mt-5 text-sm leading-8 text-charcoal/65">
-              Gratia Estates respects your privacy. This Privacy Policy explains
-              how we collect, use, store and protect information shared through
-              this website, phone calls, email, WhatsApp and property enquiry
-              forms.
-            </p>
-
-            <div className="mt-10 space-y-9">
-              {privacySections.map((section) => (
-                <div key={section.title}>
-                  <h2 className="font-display text-3xl text-charcoal">
-                    {section.title}
-                  </h2>
-                  <div className="mt-4 space-y-4 text-sm leading-8 text-charcoal/65">
-                    {section.body.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-10 rounded-xl border border-gold/30 bg-gold/10 p-5 text-xs leading-6 text-charcoal/65">
-              This policy is intended as general website information and should
-              not be treated as legal advice. Please consult a qualified legal
-              professional for formal compliance review.
-            </p>
-          </div>
-        </div>
-      </section>
+      <LegalPage
+        title="Privacy Policy"
+        intro="How Gratia Estates collects, uses, stores and protects information shared through this website, phone calls, email, WhatsApp and property enquiry forms."
+        updated="October 7, 2026"
+        sections={privacySections}
+        disclaimer="This policy is intended as general website information and should not be treated as legal advice. Please consult a qualified legal professional for formal compliance review."
+      />
     </>
-  );
-}
-
-function LegalHero({ title, crumb }) {
-  return (
-    <section className="bg-white py-20 text-charcoal">
-      <div className="container-luxury">
-        <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-[.18em]">
-          <Link
-            to="/"
-            className="rounded-full border border-charcoal/15 px-4 py-2 text-charcoal/65 transition hover:border-gold hover:text-gold"
-          >
-            Home
-          </Link>
-          <span className="rounded-full border border-gold bg-gold px-4 py-2 text-charcoal">
-            {crumb}
-          </span>
-        </div>
-        <h1 className="mt-7 font-display text-5xl sm:text-6xl">{title}</h1>
-      </div>
-    </section>
   );
 }
