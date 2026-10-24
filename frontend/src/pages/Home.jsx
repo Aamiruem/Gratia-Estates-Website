@@ -1,11 +1,11 @@
 import {
   ArrowRight,
   ArrowUpRight,
+  Building2,
   Check,
   ChevronRight,
   MapPin,
   Phone,
-  Quote,
   Search,
   Send,
   ShieldCheck,
@@ -19,8 +19,13 @@ import { Link, useNavigate } from "react-router-dom";
 import SEO from "../components/SEO";
 import ProjectCard from "../components/ProjectCard";
 import {
+  AmenitiesShowcase,
   BrowseByStage,
+  HomeFaq,
+  HomeStructuredData,
+  JourneySection,
   LatestInsights,
+  PopularLocations,
   StatsBand,
   VideoTeaser,
 } from "../components/home/HomeSections";
@@ -32,6 +37,10 @@ const MAX_FEATURED = 8;
 
 const projects = Array.isArray(projectData) ? projectData : [];
 const heroSlides = projects.slice(0, MAX_FEATURED);
+// e.g. "SOBHA Limited, DLF India, Godrej Properties and more"
+const heroDevelopers = `${[...new Set(projects.map((p) => p.developer).filter(Boolean))]
+  .slice(0, 4)
+  .join(", ")} and more`;
 
 const trustPoints = [
   {
@@ -471,22 +480,53 @@ export default function Home() {
         title="Gratia Estates | Premium Real Estate Advisory in Gurgaon"
         description="Explore Gurgaon residential projects with Gratia Estates. Compare pre-launch, new-launch, and ready-to-move homes with focused local guidance."
       />
+      <HomeStructuredData />
 
       <HomeContactPopup />
 
-      <section className="relative overflow-hidden bg-[#f7f4ed]">
-        <div className="container-luxury grid min-h-[640px] items-center gap-10 py-14 lg:grid-cols-2 lg:gap-12 lg:py-16">
+      <section className="relative isolate overflow-hidden bg-[#f7f4ed]">
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_10%_0%,rgba(201,164,92,.18),transparent_45%),radial-gradient(ellipse_at_90%_100%,rgba(20,37,54,.08),transparent_50%)]"
+          aria-hidden="true"
+        />
+        <div className="container-luxury grid min-h-[640px] items-center gap-10 py-14 lg:grid-cols-[1.12fr_.88fr] lg:gap-12 lg:py-16">
           <div className="relative z-10">
-            <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.28em] text-[#96713b] sm:text-[11px] sm:tracking-[0.34em]">
-              Gurgaon · Premium Real Estate Advisory
+            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c9a45c]/40 bg-white/80 py-1.5 pl-1.5 pr-4 text-xs font-bold text-[#142536] shadow-sm">
+              <span className="grid size-7 place-items-center rounded-full bg-[#142536] text-[#e1c98f]">
+                <ShieldCheck size={15} aria-hidden="true" />
+              </span>
+              Trusted Gurgaon property advisors
             </p>
-            <h1 className="max-w-2xl font-display text-4xl leading-[1.08] text-charcoal sm:text-5xl lg:text-6xl">
-              Find the right address for your next chapter.
+            <h1 className="max-w-3xl font-display text-4xl font-bold leading-[1.08] text-[#142536] sm:text-5xl lg:text-[3.3rem] xl:text-[3.6rem]">
+              Buy your Gurgaon home
+              <span className="mt-1 block bg-gradient-to-r from-[#9a7335] via-[#c9a45c] to-[#9a7335] bg-clip-text text-transparent">
+                with clarity &amp; confidence.
+              </span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-charcoal/65 sm:mt-7 sm:text-lg sm:leading-8">
-              Curated residential opportunities across Gurgaon — from pre-launch
-              and new launches to premium ready-to-move homes.
+            <p className="mt-6 max-w-xl text-base leading-7 text-[#4b5966] sm:mt-7 sm:text-lg sm:leading-8">
+              Compare new-launch, under-construction and ready-to-move homes
+              from{" "}
+              <strong className="font-semibold text-[#142536]">
+                {heroDevelopers}
+              </strong>{" "}
+              with one advisor guiding you from shortlist to site visit.
             </p>
+            <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-[#142536]">
+              {[
+                "Personal 1:1 guidance",
+                "Site visits arranged",
+                "Clear price comparisons",
+              ].map((point) => (
+                <li key={point} className="flex items-center gap-2">
+                  <Check
+                    size={16}
+                    className="rounded-full bg-emerald-600 p-0.5 text-white"
+                    aria-hidden="true"
+                  />
+                  {point}
+                </li>
+              ))}
+            </ul>
 
             <div className="mt-7 flex max-w-xl items-start gap-2 sm:gap-3">
               <form
@@ -570,32 +610,40 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="mt-10 grid max-w-xl grid-cols-3 gap-2 sm:mt-12 sm:gap-3">
-              <div className="rounded-2xl bg-white p-3 shadow-sm sm:p-5">
-                <strong className="font-display text-2xl text-[#96713b] sm:text-3xl">
-                  {projects.length}+
-                </strong>
-                <span className="mt-1 block text-[9px] font-bold uppercase leading-4 tracking-wide text-charcoal/65 sm:text-[10px]">
-                  Projects listed
-                </span>
-              </div>
-              <div className="rounded-2xl bg-white p-3 shadow-sm sm:p-5">
-                <strong className="font-display text-2xl text-[#96713b] sm:text-3xl">
-                  100%
-                </strong>
-                <span className="mt-1 block text-[9px] font-bold uppercase leading-4 tracking-wide text-charcoal/65 sm:text-[10px]">
-                  Gurgaon focus
-                </span>
-              </div>
-              <div className="rounded-2xl bg-white p-3 shadow-sm sm:p-5">
-                <strong className="font-display text-2xl text-[#96713b] sm:text-3xl">
-                  1:1
-                </strong>
-                <span className="mt-1 block text-[9px] font-bold uppercase leading-4 tracking-wide text-charcoal/65 sm:text-[10px]">
-                  Personal advice
-                </span>
-              </div>
+            <div className="mt-10 grid max-w-xl grid-cols-3 gap-2 sm:mt-10 sm:gap-3">
+              {[
+                { Icon: Building2, value: `${projects.length}+`, label: "Curated projects" },
+                { Icon: MapPin, value: "100%", label: "Gurgaon focus" },
+                { Icon: Users, value: "1:1", label: "Personal advisor" },
+              ].map(({ Icon, value, label }) => (
+                <div
+                  key={label}
+                  className="rounded-2xl border border-[#e7e2d8] bg-white p-3 shadow-sm sm:p-5"
+                >
+                  <Icon size={20} className="text-[#c9a45c]" aria-hidden="true" />
+                  <strong className="mt-2 block font-display text-2xl font-bold text-[#142536] sm:text-3xl">
+                    {value}
+                  </strong>
+                  <span className="mt-1 block text-[10px] font-bold uppercase leading-4 tracking-wide text-[#5e6872] sm:text-[11px]">
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
+            <a
+              href={`tel:${PHONE_NUMBER}`}
+              className="mt-6 inline-flex items-center gap-3 text-sm text-[#4b5966] transition hover:text-[#142536]"
+            >
+              <span className="grid size-10 place-items-center rounded-full bg-[#c9a45c] text-[#142536] shadow-md">
+                <Phone size={17} aria-hidden="true" />
+              </span>
+              <span>
+                Speak to an advisor today
+                <strong className="block font-display text-base text-[#142536]">
+                  +91 91097 76155
+                </strong>
+              </span>
+            </a>
           </div>
 
           <FeaturedProjectSlider />
@@ -773,62 +821,15 @@ export default function Home() {
 
       <VideoTeaser />
 
-      <section className="bg-white py-16 sm:py-24">
-        <div className="container-luxury">
-          <div className="mx-auto max-w-2xl text-center">
-            <Quote
-              className="mx-auto mb-5 text-[#96713b]"
-              size={32}
-              aria-hidden="true"
-            />
-            <h2 className="font-display text-3xl sm:text-4xl">
-              A more considered property journey
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-charcoal/60">
-              We aim to make your property search clearer with focused options,
-              transparent conversations, and a local perspective.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-3 sm:mt-12">
-            {[
-              {
-                title: "Relevant options",
-                description:
-                  "Discuss your requirements and explore projects that fit your search.",
-              },
-              {
-                title: "Clear conversations",
-                description:
-                  "Understand project details, pricing information, and next steps.",
-              },
-              {
-                title: "Local perspective",
-                description:
-                  "Narrow your shortlist with Gurgaon-focused project guidance.",
-              },
-            ].map((item) => (
-              <article
-                key={item.title}
-                className="rounded-2xl border border-charcoal/5 bg-white p-6 shadow-sm sm:p-7"
-              >
-                <h3 className="font-display text-xl font-semibold">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-charcoal/65">
-                  {item.description}
-                </p>
-              </article>
-            ))}
-          </div>
-          <p className="mt-5 text-center text-xs leading-5 text-charcoal/45">
-            Experiences and outcomes vary. Project details, prices,
-            availability, and timelines should be verified before making a
-            decision.
-          </p>
-        </div>
-      </section>
+      <JourneySection />
+
+      <PopularLocations />
+
+      <AmenitiesShowcase />
 
       <LatestInsights />
+
+      <HomeFaq />
 
       <section className="bg-gold py-14 sm:py-20">
         <div className="container-luxury flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">

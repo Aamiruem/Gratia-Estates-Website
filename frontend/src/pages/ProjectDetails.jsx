@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProjectCard from "../components/ProjectCard";
 import SEO from "../components/SEO";
+import { JsonLd } from "../components/blog";
 import VideoPreview from "../components/VideoPreview";
 import { authApi } from "../services/authApi";
 import { projects } from "../data/projects";
@@ -145,10 +146,43 @@ export default function ProjectDetails() {
   return (
     <>
       <SEO
-        title={`${project.name} | ${project.location} | Gratia Estates`}
-        description={`${project.name} by ${project.developer}, ${project.location}. Explore project status, highlights and enquire with Gratia Estates.`}
+        title={`${project.name} ${project.location} | Price, Status & Details | Gratia Estates`}
+        description={`${project.name} by ${project.developer} in ${project.location}: ${project.status.toLowerCase()} ${project.type.toLowerCase()} homes, ${project.price}. See highlights, amenities and location, and book a site visit with Gratia Estates.`}
         path={`/projects/${project.slug}`}
         image={project.image}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ApartmentComplex",
+          name: project.name,
+          description: project.description,
+          image: project.image,
+          url: `https://www.gratiaestates.com/projects/${project.slug}`,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: project.location.replace(/,\s*Gurgaon$/, ""),
+            addressLocality: "Gurgaon",
+            addressRegion: "Haryana",
+            addressCountry: "IN",
+          },
+          amenityFeature: project.highlights.map((name) => ({
+            "@type": "LocationFeatureSpecification",
+            name,
+            value: true,
+          })),
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://www.gratiaestates.com/" },
+            { "@type": "ListItem", position: 2, name: "Projects", item: "https://www.gratiaestates.com/projects" },
+            { "@type": "ListItem", position: 3, name: project.name, item: `https://www.gratiaestates.com/projects/${project.slug}` },
+          ],
+        }}
       />
       <section className="py-20">
         <div className="container-luxury grid gap-10 lg:grid-cols-[1.25fr_.75fr]">

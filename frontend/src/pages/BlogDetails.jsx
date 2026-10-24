@@ -69,6 +69,7 @@ export default function BlogDetails() {
         description={post.excerpt}
         path={`/blog/${post.slug}`}
         image={post.image}
+        type="article"
       />
       <JsonLd data={buildArticleSchema(post)} />
       <JsonLd data={buildBreadcrumbSchema(post)} />

@@ -5,7 +5,7 @@ export default function FooterBrand() {
   return (
     <div className="md:col-span-2 lg:col-span-6">
       <Link to="/" aria-label="Gratia Estates home" className="inline-flex w-fit">
-        <Logo variant="light" className="h-16 text-[22px]" />
+        <Logo variant="light" tagline className="h-16 text-[22px]" />
       </Link>
 
       <p className="mt-5 max-w-xl text-sm leading-7 text-white/75 sm:text-base">

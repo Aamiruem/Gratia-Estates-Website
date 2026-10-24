@@ -55,12 +55,12 @@ export default function VideoAdminAuth() {
         description={`${isSignup ? "Create" : "Secure"} owner access for managing the Gratia Estates video library.`}
         path={isSignup ? "/video-admin/signup" : "/video-admin/login"}
       />
-      <section className="relative isolate overflow-hidden bg-[#f4f0e7] px-4 py-12 sm:py-16 lg:py-20">
+      <section className="relative isolate overflow-hidden bg-[#f4f0e7] py-12 sm:py-16 lg:py-20">
         <div
           className="pointer-events-none absolute -right-36 -top-40 -z-10 size-[28rem] rounded-full bg-[#d9c18d]/25 blur-3xl"
           aria-hidden="true"
         />
-        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_90px_rgba(20,37,54,.16)] lg:min-h-[620px] lg:grid-cols-[.88fr_1.12fr]">
+        <div className="container-luxury grid overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_90px_rgba(20,37,54,.16)] lg:min-h-[620px] lg:grid-cols-[.88fr_1.12fr]">
           <aside className="relative flex flex-col justify-between overflow-hidden bg-[#142536] p-7 text-white sm:p-10 lg:p-12">
             <div
               className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full border border-white/10"

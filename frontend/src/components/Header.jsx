@@ -40,7 +40,7 @@ export default function Header() {
           className="flex shrink-0 items-center"
           aria-label="Gratia Estates Home"
         >
-          <Logo className="h-[52px] text-[19px] transition-transform duration-200 hover:scale-[1.02]" />
+          <Logo className="h-[50px] text-[18px] transition-transform duration-200 hover:scale-[1.02] sm:text-[20px]" />
         </Link>
 
         {/* Desktop Navigation */}
