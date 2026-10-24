@@ -180,7 +180,7 @@ p {
    ========================================================= */
 
 .container-luxury {
-  width: min(1180px, calc(100% - 40px));
+  width: min(1320px, calc(100% - 40px));
   margin-inline: auto;
 }
 
@@ -604,13 +604,13 @@ select:focus-visible {
   }
 
   .container-luxury {
-    width: min(100% - 36px, 1180px);
+    width: min(100% - 36px, 1320px);
   }
 }
 
 @media (max-width: 640px) {
   .container-luxury {
-    width: min(100% - 28px, 1180px);
+    width: min(100% - 28px, 1320px);
   }
 
   .section {

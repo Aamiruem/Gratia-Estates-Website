@@ -1,17 +1,21 @@
 import {
   BadgeIndianRupee,
   Building2,
+  CalendarCheck,
   Check,
   ChevronLeft,
   ChevronRight,
   CircleCheck,
+  Headset,
   House,
   Layers,
   Landmark,
   MapPin,
   MessageCircle,
+  Phone,
   Play,
   Ruler,
+  ShieldCheck,
   Trees,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -55,15 +59,18 @@ export default function ProjectDetails() {
   const galleryImages = project
     ? [project.image, ...(project.gallery ?? [])].filter(Boolean)
     : [];
+  // Same-type projects first, then others, so the row always has 3 cards.
   const suggestedProjects = project
     ? projects
-        .filter(
-          (item) => item.slug !== project.slug && item.type === project.type,
+        .filter((item) => item.slug !== project.slug)
+        .sort(
+          (a, b) =>
+            Number(b.type === project.type) - Number(a.type === project.type),
         )
         .slice(0, 3)
     : [];
   const amenityFeatures = project
-    ? [...project.highlights, ...sharedFeatures].slice(0, 8)
+    ? [...new Set([...project.highlights, ...sharedFeatures])].slice(0, 8)
     : [];
   const [activeImage, setActiveImage] = useState(0);
   const [savedVideoData, setSavedVideoData] = useState({ videos: [], error: "" });
@@ -402,7 +409,8 @@ export default function ProjectDetails() {
               </dl>
             </div>
           </div>
-          <aside className="h-fit rounded-3xl bg-charcoal p-8 text-white lg:sticky lg:top-28">
+          <aside className="flex flex-col gap-6">
+          <div className="rounded-3xl bg-charcoal p-8 text-white">
             <p className="text-[10px] font-bold uppercase tracking-[.2em] text-gold">
               Starting price
             </p>
@@ -505,6 +513,71 @@ export default function ProjectDetails() {
             >
               <MessageCircle size={17} /> Enquire on WhatsApp
             </a>
+          </div>
+
+            {/* At a glance — fills the column beside the long overview. */}
+            <div className="rounded-3xl border border-[#e7e2d8] bg-white p-7 shadow-[0_16px_45px_rgba(20,37,54,0.07)]">
+              <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#80602b]">
+                At a glance
+              </p>
+              <h2 className="mt-1 font-display text-2xl font-semibold text-[#142536]">
+                {project.name}
+              </h2>
+              <ul className="mt-5 divide-y divide-[#eee9df]">
+                {[
+                  { icon: Landmark, label: "Developer", value: project.developer },
+                  { icon: MapPin, label: "Location", value: project.location },
+                  { icon: House, label: "Type", value: project.type },
+                  { icon: CircleCheck, label: "Status", value: project.status },
+                  { icon: BadgeIndianRupee, label: "Price", value: project.price },
+                ].map(({ icon: Icon, label, value }) => (
+                  <li key={label} className="flex items-center gap-3 py-3">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#f5efe3] text-[#9a7335]">
+                      <Icon size={17} aria-hidden="true" />
+                    </span>
+                    <span className="text-xs font-semibold uppercase tracking-[.12em] text-[#68717a]">
+                      {label}
+                    </span>
+                    <span className="ml-auto text-right text-sm font-semibold text-[#142536]">
+                      {value}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#142536] via-[#1b3247] to-[#24405a] p-7 text-white">
+              <div
+                className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-[#c9a45c]/20 blur-2xl"
+                aria-hidden="true"
+              />
+              <p className="relative text-[10px] font-bold uppercase tracking-[.18em] text-[#e1c98f]">
+                Why buy with Gratia
+              </p>
+              <ul className="relative mt-4 space-y-4">
+                {[
+                  { icon: ShieldCheck, title: "Clear comparisons", text: "Compare project details, pricing and connectivity side by side." },
+                  { icon: CalendarCheck, title: "Site visits arranged", text: "We coordinate visits at a time that suits you." },
+                  { icon: Headset, title: "One advisor, start to finish", text: "A single point of contact from shortlist to paperwork." },
+                ].map(({ icon: Icon, title, text }) => (
+                  <li key={title} className="flex gap-3">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#c9a45c] text-[#142536]">
+                      <Icon size={18} aria-hidden="true" />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold">{title}</span>
+                      <span className="mt-0.5 block text-xs leading-5 text-white/70">{text}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="tel:+919109776155"
+                className="relative mt-6 flex items-center justify-center gap-2 rounded-full bg-[#c9a45c] px-5 py-3.5 text-xs font-bold uppercase tracking-[.14em] text-[#142536] transition hover:bg-[#e1c98f]"
+              >
+                <Phone size={16} aria-hidden="true" /> Call +91 91097 76155
+              </a>
+            </div>
           </aside>
         </div>
       </section>

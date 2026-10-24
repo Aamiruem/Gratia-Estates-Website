@@ -18,6 +18,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SEO from "../components/SEO";
 import ProjectCard from "../components/ProjectCard";
+import {
+  BrowseByStage,
+  LatestInsights,
+  StatsBand,
+  VideoTeaser,
+} from "../components/home/HomeSections";
 import { projects as projectData } from "../data/projects";
 
 const WHATSAPP_NUMBER = "919109776155";
@@ -619,6 +625,8 @@ export default function Home() {
         </div>
       </section>
 
+      <StatsBand />
+
       <section className="py-16 sm:py-24">
         <div className="container-luxury">
           <div className="mb-10 flex flex-col justify-between gap-5 sm:mb-12 sm:flex-row sm:items-end">
@@ -671,6 +679,8 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <BrowseByStage />
 
       <section className="bg-[#eef2f5] py-16 text-[#142536] sm:py-24">
         <div className="container-luxury grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
@@ -761,7 +771,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#f7f4ed] py-16 sm:py-24">
+      <VideoTeaser />
+
+      <section className="bg-white py-16 sm:py-24">
         <div className="container-luxury">
           <div className="mx-auto max-w-2xl text-center">
             <Quote
@@ -815,6 +827,8 @@ export default function Home() {
           </p>
         </div>
       </section>
+
+      <LatestInsights />
 
       <section className="bg-gold py-14 sm:py-20">
         <div className="container-luxury flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">

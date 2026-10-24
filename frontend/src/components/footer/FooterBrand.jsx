@@ -1,14 +1,11 @@
 import { Link } from "react-router-dom";
+import Logo from "../Logo";
 
 export default function FooterBrand() {
   return (
     <div className="md:col-span-2 lg:col-span-6">
       <Link to="/" aria-label="Gratia Estates home" className="inline-flex w-fit">
-        <img
-          src="/assets/white-logo.png"
-          alt="Gratia Estates"
-          className="h-auto w-[150px] object-contain sm:w-[170px]"
-        />
+        <Logo variant="light" className="h-16 text-[22px]" />
       </Link>
 
       <p className="mt-5 max-w-xl text-sm leading-7 text-white/75 sm:text-base">

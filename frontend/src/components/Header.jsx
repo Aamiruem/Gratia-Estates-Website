@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import Logo from "./Logo";
 import {
   Menu,
   X,
@@ -39,11 +40,7 @@ export default function Header() {
           className="flex shrink-0 items-center"
           aria-label="Gratia Estates Home"
         >
-          <img
-            src="/assets/logo-primary.png"
-            alt="Gratia Estates"
-            className="h-[60px] w-auto object-contain transition-transform duration-200 hover:scale-[1.02]"
-          />
+          <Logo className="h-[52px] text-[19px] transition-transform duration-200 hover:scale-[1.02]" />
         </Link>
 
         {/* Desktop Navigation */}

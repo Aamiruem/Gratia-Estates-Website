@@ -1,19 +1,25 @@
 import { SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import ProjectCard from "../components/ProjectCard";
 import { projects } from "../data/projects";
 
+const filters = [
+  "All",
+  "Pre-Launch / New Launch",
+  "Launched",
+  "Ready to Move",
+  "Under Development",
+];
+
 export default function Projects() {
-  const [filter, setFilter] = useState("All");
-  const filters = [
-    "All",
-    "Pre-Launch / New Launch",
-    "Launched",
-    "Ready to Move",
-    "Under Development",
-  ];
+  // ?stage=... (used by the home page stage cards) preselects a filter.
+  const [searchParams] = useSearchParams();
+  const requestedStage = searchParams.get("stage");
+  const [filter, setFilter] = useState(
+    filters.includes(requestedStage) ? requestedStage : "All",
+  );
   const filtered = useMemo(
     () =>
       filter === "All" ? projects : projects.filter((p) => p.status === filter),
