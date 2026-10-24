@@ -5,14 +5,16 @@ import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
 
 export default function Layout({ children }) {
-  const { key, pathname } = useLocation();
+  const { pathname } = useLocation();
 
+  // Scroll to top only when the page changes, not when query params change
+  // (e.g. typing in the blog search), which would otherwise jump the page.
   useLayoutEffect(() => {
     window.history.scrollRestoration = "manual";
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-  }, [key, pathname]);
+  }, [pathname]);
 
   return (
     <>

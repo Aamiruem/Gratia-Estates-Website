@@ -121,6 +121,8 @@ function projectSearchText(project) {
     .toLowerCase();
 }
 
+const POPUP_SEEN_KEY = "gratia-home-popup-seen";
+
 function HomeContactPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
@@ -129,8 +131,22 @@ function HomeContactPopup() {
   const nameInputRef = useRef(null);
 
   useEffect(() => {
+    // Show the enquiry prompt once per browser session, not on every visit
+    // to the home page. Storage can throw in private mode, so guard it.
+    try {
+      if (sessionStorage.getItem(POPUP_SEEN_KEY)) return undefined;
+    } catch {
+      // Fall through and show the prompt.
+    }
     // Delay the enquiry prompt so visitors can first see the page.
-    const timer = window.setTimeout(() => setIsOpen(true), 8000);
+    const timer = window.setTimeout(() => {
+      setIsOpen(true);
+      try {
+        sessionStorage.setItem(POPUP_SEEN_KEY, "1");
+      } catch {
+        // Ignore unavailable storage.
+      }
+    }, 8000);
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -205,8 +221,8 @@ function HomeContactPopup() {
             Let’s find your next address
           </h2>
           <p className="mb-6 text-sm leading-6 text-charcoal/65">
-            {/* Share your requirement and our team can follow up with relevant
-            Gurgaon projects. */}
+            Share your requirement and our team can follow up with relevant
+            Gurgaon projects.
           </p>
 
           <form onSubmit={submitEnquiry} className="space-y-4">

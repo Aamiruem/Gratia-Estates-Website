@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 
 from .database import SessionLocal
-from .models import Video
+from .models import OwnerSetupState, Video
 
 SAMPLE_VIDEOS = (
     (
@@ -67,10 +67,19 @@ SAMPLE_VIDEOS = (
 )
 
 
+SEED_STATE_KEY = "sample-videos-seeded"
+
+
 def seed_sample_videos() -> None:
+    # Seed only once, so videos the owner deletes do not return on restart.
     with SessionLocal() as db:
+        if db.get(OwnerSetupState, SEED_STATE_KEY):
+            return
+
+        db.add(OwnerSetupState(key=SEED_STATE_KEY))
         existing_count = db.scalar(select(func.count()).select_from(Video))
         if existing_count:
+            db.commit()
             return
 
         db.add_all(

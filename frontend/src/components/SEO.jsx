@@ -12,12 +12,19 @@ export default function SEO({
   useEffect(() => {
     document.title = title;
 
+    // Open Graph tags must use the "property" attribute, not "name".
     const setMeta = (name, content) => {
-      let tag = document.querySelector(`meta[name="${name}"]`);
+      const attribute = name.startsWith("og:") ? "property" : "name";
+      let tag = document.querySelector(`meta[${attribute}="${name}"]`);
+
+      if (!content) {
+        tag?.remove();
+        return;
+      }
 
       if (!tag) {
         tag = document.createElement("meta");
-        tag.setAttribute("name", name);
+        tag.setAttribute(attribute, name);
         document.head.appendChild(tag);
       }
 
@@ -40,9 +47,8 @@ export default function SEO({
     setMeta("og:description", description);
     setMeta("og:url", `${SITE}${path}`);
 
-    if (image) {
-      setMeta("og:image", image);
-    }
+    // Clear a previous page's image so it does not leak onto this page.
+    setMeta("og:image", image);
   }, [title, description, path, image]);
 
   return null;

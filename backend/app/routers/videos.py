@@ -59,6 +59,11 @@ def upsert_videos(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="A maximum of 200 videos can be saved at once",
         )
+    if len({payload.id for payload in payloads}) != len(payloads):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Each video in the request must have a unique ID",
+        )
     videos = [upsert_video(payload, db) for payload in payloads]
     db.commit()
     for video in videos:

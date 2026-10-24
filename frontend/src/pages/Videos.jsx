@@ -228,9 +228,6 @@ export default function Videos() {
     const existingSamples = videos.filter((video) =>
       sampleIds.has(getYouTubeVideoId(video.url)),
     );
-    const customVideos = videos.filter(
-      (video) => !sampleIds.has(getYouTubeVideoId(video.url)),
-    );
     const existingUrls = new Set(
       existingSamples.map((video) => getYouTubeVideoId(video.url)),
     );
@@ -265,11 +262,15 @@ export default function Videos() {
         (video) =>
           getYouTubeVideoId(video.url) === getYouTubeVideoId(sample.url),
       );
-      return existing?.projectSlug
-        ? { ...sample, projectSlug: existing.projectSlug }
+      // Reuse the stored ID so an existing copy is updated, not duplicated.
+      return existing
+        ? {
+            ...sample,
+            id: existing.id,
+            projectSlug: existing.projectSlug || sample.projectSlug,
+          }
         : sample;
     });
-    nextVideos.push(...customVideos);
     const summary = [
       addedCount ? `${addedCount} added` : "",
       updatedCount ? `${updatedCount} refreshed` : "",

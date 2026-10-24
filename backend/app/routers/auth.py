@@ -13,6 +13,7 @@ from ..dependencies import ACCESS_COOKIE, REFRESH_COOKIE, get_current_user
 from ..models import OwnerSetupState, User
 from ..schemas import AuthResponse, LoginRequest, SignupRequest, UserResponse
 from ..security import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_DAYS,
     create_access_token,
     create_refresh_token,
@@ -40,7 +41,7 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
         httponly=True,
         secure=COOKIE_SECURE,
         samesite=COOKIE_SAMESITE,
-        max_age=60 * 30,
+        max_age=60 * ACCESS_TOKEN_EXPIRE_MINUTES,
         path="/",
     )
     response.set_cookie(
@@ -138,7 +139,7 @@ def signup(data: SignupRequest, response: Response, db: Session = Depends(get_db
 @router.post("/login", response_model=AuthResponse)
 def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
     email = data.email.lower().strip()
-    user = db.scalar(select(User).where(User.email == email))
+    user = db.scalar(select(User).where(func.lower(User.email) == email))
 
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")

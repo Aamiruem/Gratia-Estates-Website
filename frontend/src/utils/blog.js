@@ -1,4 +1,4 @@
-const siteUrl = "https://gratiaestates.com";
+const siteUrl = "https://www.gratiaestates.com";
 
 export function getReadingTime(post) {
   const content = [

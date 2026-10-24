@@ -51,13 +51,9 @@ export default function ProjectDetails() {
     budget: "",
     description: "",
   });
+  // Only this project's own photos; other projects' images must not appear here.
   const galleryImages = project
-    ? [
-        project.image,
-        ...projects
-          .filter((item) => item.slug !== project.slug)
-          .map((item) => item.image),
-      ]
+    ? [project.image, ...(project.gallery ?? [])].filter(Boolean)
     : [];
   const suggestedProjects = project
     ? projects
@@ -323,9 +319,9 @@ export default function ProjectDetails() {
                 </div>
               ) : (
                 <div className="mt-6 rounded-2xl border border-dashed border-[#d9dce0] bg-white/80 px-5 py-6 text-sm leading-6 text-[#5e6872]">
-                  No guide video has been added for this project yet. Use the
-                  button above to add a YouTube video and link it to this
-                  project.
+                  {videoOwner
+                    ? "No guide video has been added for this project yet. Use the button above to add a YouTube video and link it to this project."
+                    : "A guide video for this project is coming soon. Contact us for a detailed walkthrough in the meantime."}
                 </div>
               )}
             </section>
@@ -361,27 +357,31 @@ export default function ProjectDetails() {
                     value: project.price,
                     icon: BadgeIndianRupee,
                   },
+                  // Per-project specs; a row is shown only when the project
+                  // data in data/projects.js provides that value.
                   {
                     label: "Apartment configuration",
-                    value: "~4,000 sq ft",
+                    value: project.configuration,
                     icon: Ruler,
                   },
                   {
                     label: "Total land",
-                    value: "22 Acres",
+                    value: project.landArea,
                     icon: Trees,
                   },
                   {
                     label: "Total towers",
-                    value: "6 towers",
+                    value: project.towers,
                     icon: Building2,
                   },
                   {
                     label: "Floors",
-                    value: "50 floors",
+                    value: project.floors,
                     icon: Layers,
                   },
-                ].map(({ label, value, icon: Icon }) => (
+                ]
+                  .filter(({ value }) => value)
+                  .map(({ label, value, icon: Icon }) => (
                   <div
                     key={label}
                     className="flex items-center gap-4 bg-white px-6 py-5 sm:px-8"
@@ -466,10 +466,11 @@ export default function ProjectDetails() {
                   <option value="" disabled>
                     Select your budget
                   </option>
+                  <option value="Under 1 Cr">Under 1 Cr</option>
                   <option value="1-2 Cr">1-2 Cr</option>
                   <option value="2-4 Cr">2-4 Cr</option>
-                  <option value="5-7 Cr">5-7 Cr</option>
-                  <option value="8-10 Cr">8-10 Cr</option>
+                  <option value="4-7 Cr">4-7 Cr</option>
+                  <option value="7-10 Cr">7-10 Cr</option>
                   <option value="10 Cr+">10 Cr+</option>
                 </select>
               </label>

@@ -226,14 +226,19 @@ export function EmiCalculator() {
   const [years, setYears] = useState(20);
   const monthlyRate = rate / 1200;
   const months = years * 12;
-  const emi = monthlyRate
-    ? principal * monthlyRate * ((1 + monthlyRate) ** months) / (((1 + monthlyRate) ** months) - 1)
-    : principal / months;
-  const formattedEmi = new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(emi);
+  const isValid = principal > 0 && rate >= 0 && months > 0;
+  const emi = !isValid
+    ? 0
+    : monthlyRate
+      ? principal * monthlyRate * ((1 + monthlyRate) ** months) / (((1 + monthlyRate) ** months) - 1)
+      : principal / months;
+  const formattedEmi = isValid
+    ? new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }).format(emi)
+    : "Enter a loan amount and tenure";
   return (
     <section className="my-10 rounded-2xl border border-black/10 bg-white p-6">
       <h2 className="font-display text-2xl">Home loan EMI calculator</h2>
@@ -290,8 +295,13 @@ export function FaqSection({ faqs = [] }) {
 export function ShareButtons({ url, title }) {
   const [copied, setCopied] = useState(false);
   const copyLink = async () => {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
+    // navigator.clipboard is unavailable on plain-http LAN addresses.
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch {
+      window.prompt("Copy this link:", url);
+    }
   };
   return (
     <div className="flex flex-wrap items-center gap-3">
