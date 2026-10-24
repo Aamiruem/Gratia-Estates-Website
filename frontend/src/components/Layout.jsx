@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
+import ChatWidget from "./chat/ChatWidget";
 
 export default function Layout({ children }) {
   const { pathname } = useLocation();
@@ -22,6 +23,7 @@ export default function Layout({ children }) {
       <main>{children}</main>
       <Footer />
       <WhatsAppButton />
+      <ChatWidget />
     </>
   );
 }

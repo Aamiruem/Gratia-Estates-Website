@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import {
+  AdvisorCard,
   ArticleBody,
   AuthorBox,
   BuyerChecklist,
@@ -22,6 +23,7 @@ import {
   ReadingProgress,
   RelatedPosts,
   ShareButtons,
+  SidebarProjects,
   TableOfContents,
 } from "../components/blog";
 import {
@@ -169,7 +171,7 @@ export default function BlogDetails() {
           </div>
         </header>
 
-        <div className="container-luxury pb-16 pt-14">
+        <div className="container-luxury pb-16 pt-8">
           <Link
             to="/blog"
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#142536] transition hover:text-[#9a7940]"
@@ -177,24 +179,32 @@ export default function BlogDetails() {
             <ArrowLeft size={15} aria-hidden="true" /> Back to all articles
           </Link>
 
-          <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_260px]">
-            <div className="max-w-3xl">
-              <TableOfContents sections={post.sections} variant="mobile" />
+          <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[250px_minmax(0,1fr)_300px]">
+            {/* Left: sticky contents (wide screens) */}
+            <aside className="hidden xl:sticky xl:top-28 xl:block">
+              <TableOfContents sections={post.sections} />
+            </aside>
+
+            {/* Centre: the article */}
+            <div className="min-w-0 rounded-3xl border border-[#e7e2d8] bg-white p-6 shadow-[0_18px_50px_rgba(20,37,54,.06)] sm:p-10">
+              <div className="xl:hidden">
+                <TableOfContents sections={post.sections} variant="mobile" />
+              </div>
               <KeyTakeaways items={post.takeaways} />
               <ArticleBody sections={post.sections} />
               {post.tools?.includes("emi") && <EmiCalculator />}
               <BuyerChecklist checklist={post.checklist} />
               <FaqSection faqs={post.faqs} />
-              <div className="space-y-8 border-t border-black/10 pt-8">
-                <ShareButtons url={postUrl(post)} title={post.title} />
+              <div className="mt-10 grid gap-6 border-t border-[#eee9df] pt-8 md:grid-cols-2 md:items-center">
                 <AuthorBox authorId={post.authorId} />
+                <ShareButtons url={postUrl(post)} title={post.title} />
               </div>
             </div>
 
-            <aside className="hidden lg:block">
-              <div className="sticky top-28">
-                <TableOfContents sections={post.sections} />
-              </div>
+            {/* Right: advisor and related projects */}
+            <aside className="space-y-5 lg:sticky lg:top-28">
+              <AdvisorCard post={post} />
+              <SidebarProjects />
             </aside>
           </div>
 
