@@ -1,4 +1,3 @@
-import hmac
 import logging
 import os
 import secrets
@@ -15,8 +14,12 @@ from .. import config  # noqa: F401
 from .. import otp
 from ..database import get_db
 from ..dependencies import ACCESS_COOKIE, REFRESH_COOKIE, get_current_user
-from ..models import LoginChallenge, OwnerSetupState, User
-from ..schemas import AuthResponse, LoginRequest, SignupRequest, UserResponse
+from ..models import (
+    EmailChangeChallenge,
+    LoginChallenge,
+    User,
+)
+from ..schemas import AuthResponse, LoginRequest, UserResponse
 from ..security import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_DAYS,
@@ -24,7 +27,6 @@ from ..security import (
     create_refresh_token,
     decode_token,
     hash_password,
-    verify_password,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -33,11 +35,12 @@ logger = logging.getLogger("gratia.auth")
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax")
 VIDEO_ADMIN_EMAIL = os.getenv("VIDEO_ADMIN_EMAIL", "").strip().lower()
-OWNER_SETUP_TOKEN = os.getenv("OWNER_SETUP_TOKEN", "")
 
 
 def is_video_admin(user: User) -> bool:
-    return bool(VIDEO_ADMIN_EMAIL and user.email.lower() == VIDEO_ADMIN_EMAIL)
+    return user.role == "video_admin" or bool(
+        VIDEO_ADMIN_EMAIL and user.email.lower() == VIDEO_ADMIN_EMAIL
+    )
 
 
 def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
@@ -66,89 +69,19 @@ def clear_auth_cookies(response: Response):
     response.delete_cookie(key=REFRESH_COOKIE, path="/auth/refresh")
 
 
-@router.post("/signup", response_model=AuthResponse)
-def signup(data: SignupRequest, response: Response, db: Session = Depends(get_db)):
-    email = data.email.lower().strip()
-
-    if not VIDEO_ADMIN_EMAIL:
-        raise HTTPException(
-            status_code=503,
-            detail="Owner registration is unavailable because no owner email is configured.",
-        )
-    if len(OWNER_SETUP_TOKEN) < 32:
-        raise HTTPException(
-            status_code=503,
-            detail="Owner registration is not configured. Set a secure OWNER_SETUP_TOKEN in the backend config.",
-        )
-    if email != VIDEO_ADMIN_EMAIL:
-        raise HTTPException(
-            status_code=403,
-            detail="Owner registration is only available for the configured owner email.",
-        )
-    if not hmac.compare_digest(
-        data.setup_code.encode("utf-8"), OWNER_SETUP_TOKEN.encode("utf-8")
-    ):
-        raise HTTPException(status_code=403, detail="Invalid owner setup code.")
-
-    if db.get(OwnerSetupState, "owner-account-setup"):
-        raise HTTPException(
-            status_code=409,
-            detail="Owner setup has already been completed. Sign in or reset the password locally.",
-        )
-
-    existing = db.scalar(
-        select(User).where(func.lower(User.email) == VIDEO_ADMIN_EMAIL)
-    )
-    if existing and not existing.is_active:
-        raise HTTPException(
-            status_code=403,
-            detail="The configured owner account is inactive. Contact the administrator.",
-        )
-
-    if existing:
-        user = existing
-        user.password_hash = hash_password(data.password)
-    else:
-        user = User(
-            name=data.name.strip(),
-            email=email,
-            password_hash=hash_password(data.password),
-            role="user",
-        )
-        db.add(user)
-    db.add(OwnerSetupState(key="owner-account-setup"))
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="Owner setup has already been completed. Sign in or reset the password locally.",
-        )
-    db.refresh(user)
-
-    access_token = create_access_token(user.id)
-    refresh_token = create_refresh_token(user.id)
-    set_auth_cookies(response, access_token, refresh_token)
-
-    return AuthResponse(
-        message=(
-            "Owner account created successfully"
-            if existing is None
-            else "Owner password set successfully"
-        ),
-        user=user,
-        is_video_admin=is_video_admin(user),
-    )
+PHONE_PREFIX = "phone_"
 
 
-RESET_PREFIX = "reset_"  # marks password-reset codes so they can't be used to sign in
-
-
-def _issue_challenge(user: User, db: Session, purpose: str = "login") -> dict:
+def _issue_challenge(
+    user: User,
+    db: Session,
+    channel: str = "email",
+    show_code: bool = False,
+) -> dict:
     """Creates a one-time code for the user, sends it and returns the challenge info."""
     db.execute(delete(LoginChallenge).where(LoginChallenge.user_id == user.id))
-    challenge_id = (RESET_PREFIX if purpose == "reset" else "") + secrets.token_urlsafe(32)
+    prefix = PHONE_PREFIX if channel == "phone" else ""
+    challenge_id = prefix + secrets.token_urlsafe(32)
     code = otp.new_code()
     db.add(
         LoginChallenge(
@@ -158,22 +91,43 @@ def _issue_challenge(user: User, db: Session, purpose: str = "login") -> dict:
             expires_at=datetime.now(timezone.utc) + timedelta(minutes=otp.CODE_TTL_MINUTES),
         )
     )
-    db.commit()
+    db.flush()
+    recipient = user.email
+    delivered_via = channel
     try:
-        otp.send_code(user.email, code, "password reset" if purpose == "reset" else "sign-in")
+        if channel == "phone":
+            phone = os.getenv("OWNER_PHONE_NUMBER", "").strip()
+            delivered_via = otp.send_sms_code(phone, code, "sign-in")
+            recipient = otp.mask_phone(phone)
+        else:
+            delivered_via = otp.send_code(user.email, code, "sign-in")
     except Exception:
-        logger.exception("Could not send the sign-in code email")
+        logger.exception("Could not send the owner verification code")
+        db.rollback()
         raise HTTPException(
             status_code=502,
-            detail="We couldn't send your sign-in code. Please try again shortly.",
+            detail="We couldn't send your verification code. Please check the configured delivery service and try again.",
         )
-    return {
+    db.commit()
+    reply = {
         "otp_required": True,
         "challenge_id": challenge_id,
-        "sent_to": otp.mask_email(user.email),
+        "sent_to": otp.mask_email(recipient) if channel == "email" else recipient,
+        "channel": channel,
+        "delivered_via": delivered_via,
         "expires_in_minutes": otp.CODE_TTL_MINUTES,
         "resend_after_seconds": otp.RESEND_AFTER_SECONDS,
     }
+    # Local test mode only: no real email/SMS was sent and the request comes from
+    # this computer, so showing the code is no weaker than the local code file.
+    if show_code and delivered_via in {"log", "push"}:
+        reply["local_code"] = code
+    return reply
+
+
+def _is_local_request(request: Request) -> bool:
+    host = request.client.host if request.client else ""
+    return otp.console_fallback_enabled() and host in {"127.0.0.1", "::1", "localhost"}
 
 
 def _complete_login(user: User, response: Response) -> AuthResponse:
@@ -181,21 +135,76 @@ def _complete_login(user: User, response: Response) -> AuthResponse:
     return AuthResponse(message="Login successful", user=user, is_video_admin=is_video_admin(user))
 
 
+def _find_owner(db: Session) -> User | None:
+    """Returns the video owner, creating it from VIDEO_ADMIN_EMAIL on first use."""
+    owner = db.scalar(select(User).where(User.role == "video_admin").order_by(User.id))
+    if owner is None and VIDEO_ADMIN_EMAIL:
+        owner = db.scalar(select(User).where(func.lower(User.email) == VIDEO_ADMIN_EMAIL))
+        if owner is None:
+            # Sign-in is OTP-only, so this password is random and never used.
+            owner = User(
+                name="Owner",
+                email=VIDEO_ADMIN_EMAIL,
+                password_hash=hash_password(secrets.token_urlsafe(32)),
+                role="video_admin",
+            )
+            db.add(owner)
+            db.commit()
+            db.refresh(owner)
+    return owner
+
+
+def _last_digits(phone: str | None) -> str:
+    # Compare the last 10 digits so "+91 98xxxxxxxx" and "98xxxxxxxx" both match.
+    return "".join(character for character in phone or "" if character.isdigit())[-10:]
+
+
 @router.post("/login")
-def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
-    """Step 1: check the password. Owners then receive a one-time code by email."""
-    email = data.email.lower().strip()
-    user = db.scalar(select(User).where(func.lower(User.email) == email))
+def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
+    """Step 1: send a one-time code to the owner's email or mobile number."""
+    owner = _find_owner(db)
+    if data.otp_channel == "phone":
+        owner_phone = os.getenv("OWNER_PHONE_NUMBER", "").strip()
+        if not otp.phone_otp_available():
+            raise HTTPException(status_code=503, detail="Mobile OTP is not configured.")
+        if not data.phone or _last_digits(data.phone) != _last_digits(owner_phone):
+            raise HTTPException(status_code=401, detail="This mobile number is not registered as the owner.")
+    else:
+        email = (data.email or "").lower().strip()
+        if not email:
+            raise HTTPException(status_code=422, detail="Enter your owner email address.")
+        if not otp.email_otp_available():
+            raise HTTPException(status_code=503, detail="Email OTP is not configured.")
+        if owner is None or owner.email.lower() != email:
+            raise HTTPException(status_code=401, detail="This email is not registered as the owner.")
 
-    if not user or not verify_password(data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-
-    if not user.is_active:
+    if owner is None:
+        raise HTTPException(status_code=503, detail="No owner account is configured. Set VIDEO_ADMIN_EMAIL in the backend settings.")
+    if not owner.is_active:
         raise HTTPException(status_code=403, detail="User account is inactive")
+    return _issue_challenge(owner, db, channel=data.otp_channel, show_code=_is_local_request(request))
 
-    if otp.OTP_ENABLED:
-        return _issue_challenge(user, db)
-    return _complete_login(user, response)
+
+@router.get("/otp/options")
+def otp_options():
+    configured_phone = os.getenv("OWNER_PHONE_NUMBER", "").strip()
+    local_hint = (
+        "Code sent to your phone (ntfy app)" if otp.push_configured()
+        else "Local mode · code shown in backend terminal"
+    )
+    return {
+        "email": otp.email_otp_available(),
+        "email_hint": (
+            None if otp.smtp_configured()
+            else local_hint if otp.email_otp_available()
+            else "Email delivery is not configured"
+        ),
+        "phone": otp.phone_otp_available(),
+        "phone_hint": (
+            None if otp.twilio_configured() or not otp.phone_otp_available()
+            else local_hint
+        ) if configured_phone else "Owner mobile number is not configured",
+    }
 
 
 class OtpVerifyRequest(BaseModel):
@@ -207,61 +216,140 @@ class OtpResendRequest(BaseModel):
     challenge_id: str = Field(min_length=10, max_length=64)
 
 
-class ForgotPasswordRequest(BaseModel):
+class EmailChangeStartRequest(BaseModel):
     email: EmailStr
 
 
-class ResetPasswordRequest(BaseModel):
+class EmailChangeVerifyRequest(BaseModel):
     challenge_id: str = Field(min_length=10, max_length=64)
     code: str = Field(pattern=r"^\d{6}$")
-    new_password: str = Field(min_length=8, max_length=128)
 
 
-@router.post("/password/forgot")
-def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    """Sends a reset code to the owner's email. The reply is the same whether or
-    not the email belongs to the owner, so it can't be used to discover accounts."""
-    email = data.email.lower().strip()
-    reply = {
-        "challenge_id": RESET_PREFIX + secrets.token_urlsafe(32),
-        "sent_to": otp.mask_email(email),
+@router.post("/email/change/start")
+def start_email_change(
+    data: EmailChangeStartRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not is_video_admin(current_user):
+        raise HTTPException(status_code=403, detail="Only the video owner can change this email.")
+
+    new_email = data.email.lower().strip()
+    if new_email == current_user.email.lower():
+        raise HTTPException(status_code=400, detail="Enter a different email address.")
+    existing = db.scalar(select(User).where(func.lower(User.email) == new_email))
+    if existing and existing.id != current_user.id:
+        raise HTTPException(status_code=409, detail="An account already uses that email address.")
+
+    previous_challenge = db.scalar(
+        select(EmailChangeChallenge)
+        .where(EmailChangeChallenge.user_id == current_user.id)
+        .order_by(EmailChangeChallenge.sent_at.desc())
+    )
+    if previous_challenge:
+        sent_at = previous_challenge.sent_at
+        if sent_at.tzinfo is None:
+            sent_at = sent_at.replace(tzinfo=timezone.utc)
+        wait = otp.RESEND_AFTER_SECONDS - (
+            datetime.now(timezone.utc) - sent_at
+        ).total_seconds()
+        if wait > 0:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Please wait {int(wait) + 1} seconds before requesting another code.",
+            )
+        db.delete(previous_challenge)
+
+    challenge_id = secrets.token_urlsafe(32)
+    code = otp.new_code()
+    challenge = EmailChangeChallenge(
+        id=challenge_id,
+        user_id=current_user.id,
+        new_email=new_email,
+        code_hash=otp.hash_code(challenge_id, code),
+        expires_at=datetime.now(timezone.utc)
+        + timedelta(minutes=otp.CODE_TTL_MINUTES),
+    )
+    db.add(challenge)
+    db.commit()
+    try:
+        otp.send_code(new_email, code, "email change")
+    except Exception:
+        logger.exception("Could not send the owner email-change code")
+        db.delete(challenge)
+        db.commit()
+        raise HTTPException(
+            status_code=502,
+            detail="We couldn't send a verification code to that address. Please try again shortly.",
+        )
+
+    return {
+        "challenge_id": challenge_id,
+        "sent_to": otp.mask_email(new_email),
         "expires_in_minutes": otp.CODE_TTL_MINUTES,
         "resend_after_seconds": otp.RESEND_AFTER_SECONDS,
     }
-    user = db.scalar(select(User).where(func.lower(User.email) == email))
-    if user and user.is_active and is_video_admin(user):
-        issued = _issue_challenge(user, db, purpose="reset")
-        reply["challenge_id"] = issued["challenge_id"]
-    return reply
 
 
-@router.post("/password/reset")
-def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
-    challenge = _get_challenge(data.challenge_id, db, purpose="reset")
+@router.post("/email/change/verify", response_model=AuthResponse)
+def verify_email_change(
+    data: EmailChangeVerifyRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not is_video_admin(current_user):
+        raise HTTPException(status_code=403, detail="Only the video owner can change this email.")
+
+    challenge = db.get(EmailChangeChallenge, data.challenge_id)
+    if challenge is None or challenge.user_id != current_user.id:
+        raise HTTPException(status_code=400, detail="This verification code has expired. Start again.")
+
+    expires_at = challenge.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc):
+        db.delete(challenge)
+        db.commit()
+        raise HTTPException(status_code=400, detail="This verification code has expired. Start again.")
+
     if not otp.codes_match(challenge.code_hash, challenge.id, data.code):
         challenge.attempts += 1
         if challenge.attempts >= otp.MAX_ATTEMPTS:
             db.delete(challenge)
             db.commit()
-            raise HTTPException(status_code=429, detail="Too many incorrect codes. Please request a new one.")
+            raise HTTPException(status_code=429, detail="Too many incorrect codes. Request a new one.")
         db.commit()
-        left = otp.MAX_ATTEMPTS - challenge.attempts
-        raise HTTPException(status_code=401, detail=f"That code isn't right. {left} {'try' if left == 1 else 'tries'} left.")
+        remaining = otp.MAX_ATTEMPTS - challenge.attempts
+        raise HTTPException(
+            status_code=401,
+            detail=f"That code isn't right. {remaining} {'try' if remaining == 1 else 'tries'} left.",
+        )
 
-    user = db.get(User, challenge.user_id)
+    existing = db.scalar(
+        select(User).where(func.lower(User.email) == challenge.new_email)
+    )
+    if existing and existing.id != current_user.id:
+        db.delete(challenge)
+        db.commit()
+        raise HTTPException(status_code=409, detail="An account already uses that email address.")
+
+    current_user.email = challenge.new_email
+    current_user.role = "video_admin"
     db.delete(challenge)
-    if not user or not user.is_active:
+    try:
         db.commit()
-        raise HTTPException(status_code=403, detail="User account is inactive")
-    user.password_hash = hash_password(data.new_password)
-    db.commit()
-    return {"message": "Your password has been updated. Please sign in with your new password."}
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An account already uses that email address.")
+    db.refresh(current_user)
+    return AuthResponse(
+        message="Owner email updated",
+        user=current_user,
+        is_video_admin=is_video_admin(current_user),
+    )
 
 
-def _get_challenge(challenge_id: str, db: Session, purpose: str = "login") -> LoginChallenge:
-    # Reset codes and sign-in codes are not interchangeable.
-    if challenge_id.startswith(RESET_PREFIX) != (purpose == "reset"):
-        raise HTTPException(status_code=400, detail="This code has expired. Please start again.")
+def _get_challenge(challenge_id: str, db: Session) -> LoginChallenge:
     challenge = db.get(LoginChallenge, challenge_id)
     if challenge is None:
         raise HTTPException(status_code=400, detail="This sign-in code has expired. Please sign in again.")
@@ -302,10 +390,8 @@ def verify_login_code(data: OtpVerifyRequest, response: Response, db: Session = 
 
 
 @router.post("/login/resend")
-def resend_login_code(data: OtpResendRequest, db: Session = Depends(get_db)):
-    # Works for both sign-in and password-reset codes.
-    purpose = "reset" if data.challenge_id.startswith(RESET_PREFIX) else "login"
-    challenge = _get_challenge(data.challenge_id, db, purpose)
+def resend_login_code(data: OtpResendRequest, request: Request, db: Session = Depends(get_db)):
+    challenge = _get_challenge(data.challenge_id, db)
     sent_at = challenge.sent_at if challenge.sent_at.tzinfo else challenge.sent_at.replace(tzinfo=timezone.utc)
     wait = otp.RESEND_AFTER_SECONDS - (datetime.now(timezone.utc) - sent_at).total_seconds()
     if wait > 0:
@@ -313,7 +399,10 @@ def resend_login_code(data: OtpResendRequest, db: Session = Depends(get_db)):
     user = db.get(User, challenge.user_id)
     if not user:
         raise HTTPException(status_code=400, detail="Please sign in again.")
-    return _issue_challenge(user, db, purpose)
+    channel = "phone" if challenge.id.startswith(PHONE_PREFIX) else "email"
+    if channel == "phone" and not otp.phone_otp_available():
+        raise HTTPException(status_code=503, detail="Phone verification is not configured.")
+    return _issue_challenge(user, db, channel, show_code=_is_local_request(request))
 
 
 @router.post("/refresh", response_model=AuthResponse)

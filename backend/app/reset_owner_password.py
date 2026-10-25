@@ -27,7 +27,13 @@ def main() -> int:
         return 1
 
     with SessionLocal() as db:
-        user = db.scalar(select(User).where(func.lower(User.email) == owner_email))
+        user = db.scalar(
+            select(User)
+            .where(User.role == "video_admin")
+            .order_by(User.id)
+        )
+        if user is None:
+            user = db.scalar(select(User).where(func.lower(User.email) == owner_email))
         if user is None:
             print(
                 "The configured owner account was not found; no changes were made.",

@@ -1,19 +1,14 @@
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 
 
-class SignupRequest(BaseModel):
-    name: str = Field(min_length=2, max_length=100)
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
-    setup_code: str = Field(min_length=32, max_length=256)
-
-
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=1, max_length=128)
+    """Passwordless owner sign-in: the owner's email or mobile number receives the OTP."""
+    otp_channel: Literal["email", "phone"] = "email"
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = Field(default=None, max_length=20)
 
 
 class UserResponse(BaseModel):

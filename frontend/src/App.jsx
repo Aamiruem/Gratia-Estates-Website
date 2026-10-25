@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -25,13 +25,10 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/book-visit" element={<BookVisit />} />
         <Route path="/videos" element={<Videos />} />
-        <Route
-          path="/video-admin/login"
-          element={<VideoAdminAuth key="owner-login" />}
-        />
+        <Route path="/video-admin/login" element={<VideoAdminAuth />} />
         <Route
           path="/video-admin/signup"
-          element={<VideoAdminAuth key="owner-signup" />}
+          element={<Navigate to="/video-admin/login" replace />}
         />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogDetails />} />

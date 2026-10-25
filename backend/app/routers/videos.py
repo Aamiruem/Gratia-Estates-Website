@@ -1,5 +1,3 @@
-import os
-
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -9,18 +7,13 @@ from ..database import get_db
 from ..dependencies import get_current_user
 from ..models import User, Video
 from ..schemas import VideoResponse, VideoWrite
+from .auth import is_video_admin
 
 router = APIRouter(prefix="/videos", tags=["Project videos"])
 
 
 def require_video_admin(current_user: User = Depends(get_current_user)) -> User:
-    owner_email = os.getenv("VIDEO_ADMIN_EMAIL", "").strip().lower()
-    if not owner_email:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Video owner access is not configured on the backend",
-        )
-    if current_user.email.lower() != owner_email:
+    if not is_video_admin(current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This account is not allowed to manage project videos",

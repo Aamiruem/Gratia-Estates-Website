@@ -61,33 +61,87 @@ For a non-local backend, set `VITE_API_URL` in `frontend/.env` using
 
 ## Owner account sign-in and first-time setup
 
-1. Set `OWNER_SETUP_TOKEN` in `%LOCALAPPDATA%\GratiaEstates\backend.env` to a
-   private random value of at least 32 characters. For example, in PowerShell:
+Open `/video-admin/signup`, enter an owner name, an email address you can
+access, and a password. The owner account is created only after the email OTP
+is verified, and only when no owner account is already configured. Public
+sign-up cannot replace an existing owner. To change an existing owner's email,
+sign in and use **Videos → Change owner email**. Only the single
+`video_admin` owner can manage project videos.
 
-   ```powershell
-   ([guid]::NewGuid().ToString("N") + [guid]::NewGuid().ToString("N"))
-   ```
+Email OTP requires SMTP settings in private backend configuration. Phone OTP
+can be selected for later sign-ins after SMS delivery is configured. Public
+visitors can read the video list. The first backend startup seeds the current
+public sample videos only if the project-video table is empty.
 
-   Copy the generated value into the local backend config as
-   `OWNER_SETUP_TOKEN=<generated-value>`. Do not put this code in frontend
-   files or commit it.
-2. Restart the backend, open `/video-admin/signup`, and enter the email
-   configured as `VIDEO_ADMIN_EMAIL`, the private setup code, and a new
-   password. This creates the account if it does not exist, or sets a new
-   password on the existing owner account.
-3. Owner setup succeeds only once per database. After setup, sign in at
-   `/video-admin/login` with the configured email and the password you set.
-   Use the local reset command below if you need to change it again.
-4. The backend checks the account against `VIDEO_ADMIN_EMAIL` and only allows
-   that account to create, update, seed, or delete project videos.
-5. Public visitors can read the video list. The first backend startup seeds
-   the current public sample videos only if the project-video table is empty.
+Do not put database credentials, JWT secrets, or service-provider credentials
+into frontend code or commit them. For deployment, use the hosting provider's
+secret environment configuration, HTTPS, `COOKIE_SECURE=true`, and a
+production CORS origin.
 
-The owner email and setup code belong in private backend configuration and are
-not embedded in frontend code. Do not put database credentials, JWT secrets,
-setup codes, or service-role keys into the frontend or commit them. For
-deployment, use the hosting provider's secret environment configuration, HTTPS,
-`COOKIE_SECURE=true`, and a production CORS origin.
+### Change the existing owner's email
+
+While signed in, open **Videos → Change owner email**. Confirm the current
+password, enter the new email, then enter the one-time verification code sent
+to that address. This updates the existing owner account; it does not reopen
+public registration or create another owner. The verified account keeps the
+`video_admin` role, so no private configuration change is required.
+
+### Configure email and phone OTP delivery
+
+OTP delivery needs real credentials from your email and SMS providers. Create
+an SMTP-enabled email account (for Gmail, use an app password) and a Twilio
+account with an active sender or Messaging Service. Do not paste these
+credentials into chat or frontend files.
+
+From the repository's `backend/` directory (not `backend/app/`), run:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.configure_otp
+```
+
+If your PowerShell prompt currently ends in `backend\app>`, first move up to
+the backend directory and run the module with the already activated Python:
+
+```powershell
+Set-Location ..
+python -m app.configure_otp
+```
+
+The helper prompts for SMTP settings first, hides password/token input,
+validates the SMTP connection and login, and saves values to
+`%LOCALAPPDATA%\GratiaEstates\backend.env`. It preserves unrelated backend
+settings. SMS/Twilio setup is optional, so email OTP can be enabled first.
+Choose `y` at the SMS prompt only if you also have Twilio credentials. Restart
+the backend after configuration, then refresh the sign-in page. Sign-up
+verifies the email address; subsequent sign-ins can use email, and phone when
+Twilio is configured.
+
+If you prefer to configure values manually, keep them in the same private
+backend config file, never in frontend code or a committed file:
+
+```dotenv
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-address@example.com
+SMTP_PASSWORD=your-email-app-password
+SMTP_FROM=your-address@example.com
+OWNER_PHONE_NUMBER=+15551234567
+TWILIO_ACCOUNT_SID=your-account-sid
+TWILIO_AUTH_TOKEN=your-auth-token
+TWILIO_FROM_NUMBER=+15557654321
+```
+
+You can use `TWILIO_MESSAGING_SERVICE_SID` instead of `TWILIO_FROM_NUMBER`.
+
+### Set up the initial owner email/password
+
+Open `/video-admin/signup`, enter an email inbox you can access, and choose a
+password. The initial owner account is created only after the email OTP is
+verified and only if no owner is already configured. This does not delete the
+video library. It requires valid SMTP delivery settings. Later sign-ins can
+use either email OTP or phone OTP after the corresponding provider is
+configured. Existing owner credentials cannot be replaced through public
+sign-up.
 
 ### Reset the existing owner's password locally
 
@@ -101,4 +155,6 @@ password without displaying it:
 ```
 
 The password must be 8-128 characters. A missing owner account, invalid
-password, or confirmation mismatch leaves the database unchanged.
+password, or confirmation mismatch leaves the database unchanged. After an
+email change, the utility finds the owner by role and falls back to
+`VIDEO_ADMIN_EMAIL` for an account that has not changed its email yet.

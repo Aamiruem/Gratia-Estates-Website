@@ -1,17 +1,26 @@
 import {
+  ArrowRight,
   CalendarCheck,
+  ClipboardList,
+  LayoutGrid,
+  MapPin,
+  MessageCircle,
   Pencil,
   Play,
   Plus,
   Repeat2,
+  Route,
   Sparkles,
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import CallIcon from "../components/CallIcon";
 import SEO from "../components/SEO";
+import { whatsappUrl } from "../utils/whatsapp";
 import VideoPreview from "../components/VideoPreview";
 import VideoActions, { VideoInfo, videoChannel } from "../components/VideoActions";
 import VideoEditorDialog from "../components/VideoEditorDialog";
+import OwnerEmailChange from "../components/OwnerEmailChange";
 import { projects } from "../data/projects";
 import { Link, useSearchParams } from "react-router-dom";
 import { authApi } from "../services/authApi";
@@ -24,6 +33,20 @@ import {
   saveVideo,
   saveVideos,
 } from "../utils/videoLibrary";
+
+const visitBenefits = [
+  { icon: MapPin, title: "Location & connectivity", text: "See the neighbourhood, roads and nearby landmarks first-hand." },
+  { icon: LayoutGrid, title: "Actual layouts", text: "Walk through sample flats and judge space and light yourself." },
+  { icon: ClipboardList, title: "Pricing explained", text: "Go over pricing and payment plans with your advisor on site." },
+  { icon: Route, title: "Compare in one trip", text: "Plan visits to several shortlisted projects on the same day." },
+];
+
+const visitSteps = [
+  { title: "Share your shortlist", text: "Pick the projects you liked and a date and time that suit you." },
+  { title: "We confirm your slot", text: "Our team schedules the visit and shares the details on WhatsApp or call." },
+  { title: "Visit with your advisor", text: "One advisor guides you from shortlist to site visit and answers every question." },
+];
+
 const sampleVideos = [
   {
     id: "roots-courtyard-2",
@@ -112,6 +135,7 @@ export default function Videos() {
   const [notice, setNotice] = useState("");
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [emailChangeOpen, setEmailChangeOpen] = useState(false);
   const isOwner = user?.is_video_admin === true;
 
   useEffect(() => {
@@ -299,6 +323,13 @@ export default function Videos() {
     setNotice("");
   };
 
+  const ownerEmailChanged = (result) => {
+    setUser({ ...result.user, is_video_admin: result.is_video_admin === true });
+    setEmailChangeOpen(false);
+    setNotice("Owner email updated. Use the new address the next time you sign in.");
+    setError("");
+  };
+
   return (
     <>
       <SEO
@@ -342,20 +373,28 @@ export default function Videos() {
               ))}
             </ul>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <nav className="mt-8 flex flex-wrap gap-3" aria-label="Video section navigation">
               <a
                 href="#all-videos"
                 className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#c9a45c] px-6 py-3 text-sm font-semibold text-[#142536] shadow-[0_10px_24px_rgba(201,164,92,.35)] transition hover:bg-[#e1c98f]"
               >
                 <Play size={16} fill="currentColor" aria-hidden="true" /> Browse all videos
               </a>
+              {isOwner && (
+                <a
+                  href="#all-videos"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-400/10 px-6 py-3 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200 hover:bg-emerald-400/20"
+                >
+                  <Pencil size={16} aria-hidden="true" /> Edit videos
+                </a>
+              )}
               <Link
                 to="/book-visit"
                 className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
               >
                 <CalendarCheck size={16} aria-hidden="true" /> Book a site visit
               </Link>
-            </div>
+            </nav>
 
             {isOwner && (
               // Owner-only tools: never shown to visitors.
@@ -370,10 +409,24 @@ export default function Videos() {
                   <button type="button" onClick={addSampleVideos} className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20">
                     <Sparkles size={15} aria-hidden="true" /> Sync sample videos
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setEmailChangeOpen((open) => !open)}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
+                  >
+                    <Pencil size={15} aria-hidden="true" /> Change owner email
+                  </button>
                   <button type="button" onClick={signOutOwner} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white/80 hover:text-white">
                     Sign out
                   </button>
                 </div>
+                {emailChangeOpen && (
+                  <OwnerEmailChange
+                    currentEmail={user.email}
+                    onChanged={ownerEmailChanged}
+                    onCancel={() => setEmailChangeOpen(false)}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -523,36 +576,92 @@ export default function Videos() {
 
       <section className="pb-12 sm:pb-16">
         <div className="container-luxury">
-          <div className="relative isolate grid items-center gap-6 overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 via-white to-[#fbf8f2] p-6 text-[#142536] sm:p-10 lg:grid-cols-[1.3fr_1fr]">
+          <div className="relative isolate grid gap-8 overflow-hidden rounded-[2rem] bg-[#142536] p-6 text-white shadow-[0_30px_80px_rgba(20,37,54,.22)] sm:p-10 lg:grid-cols-[1.25fr_1fr] lg:gap-12 lg:p-12">
             <div
-              className="pointer-events-none absolute -right-20 -top-20 -z-10 size-72 rounded-full bg-rose-200/40 blur-3xl"
+              className="pointer-events-none absolute -right-24 -top-24 -z-10 size-80 rounded-full bg-[#c9a45c]/25 blur-3xl"
               aria-hidden="true"
             />
+            <div
+              className="pointer-events-none absolute -bottom-32 -left-20 -z-10 size-80 rounded-full border border-white/10"
+              aria-hidden="true"
+            />
+
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[.2em] text-rose-700">
-                Seen something you like?
+              <p className="inline-flex items-center gap-2 rounded-full border border-[#e1c98f]/30 bg-white/[.06] px-3 py-1 text-[11px] font-bold uppercase tracking-[.2em] text-[#e1c98f]">
+                <Sparkles size={13} aria-hidden="true" /> Seen something you like?
               </p>
-              <h2 className="mt-2 font-display text-2xl font-semibold !text-[#142536] sm:text-3xl">
-                Book a guided site visit
+              <h2 className="mt-4 font-display text-3xl font-semibold leading-tight !text-white sm:text-4xl">
+                See it in person with a guided site visit
               </h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-[#5e6872]">
-                Videos are a great start. Visit in person with our team to see
-                the location, layouts and amenities before you decide.
+              <p className="mt-3 max-w-xl text-sm leading-7 text-white/70">
+                Videos are a great start. On a site visit, one Gratia advisor
+                walks you through the location, actual layouts and amenities,
+                so you can decide with confidence.
               </p>
+
+              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                {visitBenefits.map(({ icon: Icon, title, text }) => (
+                  <li key={title} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-3.5">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#c9a45c]/15 text-[#e1c98f]">
+                      <Icon size={17} aria-hidden="true" />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold text-white">{title}</span>
+                      <span className="mt-0.5 block text-xs leading-5 text-white/60">{text}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link
+                  to="/book-visit"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c9a45c] px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-[#142536] shadow-lg shadow-black/20 transition hover:bg-[#e1c98f]"
+                >
+                  <CalendarCheck size={16} aria-hidden="true" /> Plan a visit
+                </Link>
+                <Link
+                  to="/projects"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-white transition hover:border-[#e1c98f] hover:text-[#e1c98f]"
+                >
+                  Browse projects <ArrowRight size={15} aria-hidden="true" />
+                </Link>
+              </div>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-              <Link
-                to="/book-visit"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-rose-600 px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-white transition hover:bg-rose-700"
-              >
-                <CalendarCheck size={16} aria-hidden="true" /> Plan a visit
-              </Link>
-              <Link
-                to="/projects"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#142536]/20 bg-white px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-[#142536] transition hover:border-rose-400"
-              >
-                Browse projects
-              </Link>
+
+            <div className="flex flex-col rounded-3xl border border-white/10 bg-white/[.05] p-6 backdrop-blur-sm sm:p-7">
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#e1c98f]">How it works</p>
+              <ol className="mt-5 grid gap-5">
+                {visitSteps.map((step, index) => (
+                  <li key={step.title} className="flex gap-4">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full border border-[#e1c98f]/40 font-display text-sm font-bold text-[#e1c98f]">
+                      {index + 1}
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold text-white">{step.title}</span>
+                      <span className="mt-0.5 block text-xs leading-5 text-white/60">{step.text}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+
+              <div className="mt-6 grid gap-2 border-t border-white/10 pt-5 sm:grid-cols-2 lg:mt-auto">
+                <a
+                  href="tel:+919109776155"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#34C759] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2DB14F]"
+                >
+                  <CallIcon size={15} /> Call us
+                </a>
+                <a
+                  href={whatsappUrl("Hello Gratia Estates, I watched your property videos and would like to plan a site visit.")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#34C759] hover:text-[#7ee29a]"
+                >
+                  <MessageCircle size={15} aria-hidden="true" /> WhatsApp
+                </a>
+              </div>
+              <p className="mt-3 text-center text-xs text-white/50">+91 91097 76155 · Gurgaon &amp; Delhi-NCR</p>
             </div>
           </div>
         </div>

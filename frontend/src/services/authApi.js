@@ -1,24 +1,20 @@
 import { apiRequest } from "./apiClient";
 
 export const authApi = {
-  login: (email, password) =>
+  // Step 1 of owner sign-in: send a code to the owner's email or mobile number.
+  login: (otpChannel, identifier) =>
     apiRequest("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(
+        otpChannel === "phone"
+          ? { otp_channel: "phone", phone: identifier }
+          : { otp_channel: "email", email: identifier },
+      ),
     }),
 
-  signup: (name, email, password, setupCode) =>
-    apiRequest("/auth/signup", {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        setup_code: setupCode,
-      }),
-    }),
+  otpOptions: () => apiRequest("/auth/otp/options"),
 
-  // Step 2 of owner sign-in: the 6-digit code sent by email.
+  // Step 2 of owner sign-in: the 6-digit code sent by email or SMS.
   verifyCode: (challengeId, code) =>
     apiRequest("/auth/login/verify", {
       method: "POST",
@@ -31,16 +27,16 @@ export const authApi = {
       body: JSON.stringify({ challenge_id: challengeId }),
     }),
 
-  forgotPassword: (email) =>
-    apiRequest("/auth/password/forgot", {
+  startEmailChange: (email) =>
+    apiRequest("/auth/email/change/start", {
       method: "POST",
       body: JSON.stringify({ email }),
     }),
 
-  resetPassword: (challengeId, code, newPassword) =>
-    apiRequest("/auth/password/reset", {
+  verifyEmailChange: (challengeId, code) =>
+    apiRequest("/auth/email/change/verify", {
       method: "POST",
-      body: JSON.stringify({ challenge_id: challengeId, code, new_password: newPassword }),
+      body: JSON.stringify({ challenge_id: challengeId, code }),
     }),
 
   me: () => apiRequest("/auth/me"),
