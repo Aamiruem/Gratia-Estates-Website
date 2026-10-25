@@ -87,7 +87,7 @@ export default function Blog() {
         }
       />
 
-      <section className="py-12 pb-20 sm:py-16">
+      <section className="py-12 sm:py-16">
         <div className="container-luxury space-y-10">
           <BlogFilters
             {...filters}

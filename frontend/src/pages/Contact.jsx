@@ -143,7 +143,7 @@ export default function Contact() {
       {/* Hero */}
       <section className="relative isolate overflow-hidden bg-[#f8f6f1] text-[#17283a]">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_85%_15%,rgba(198,161,91,0.14),transparent_42%),linear-gradient(120deg,#f8f6f1_0%,#f3efe6_62%,#eee7d9_100%)]" />
-        <div className="container-luxury py-14 sm:py-20 lg:py-24">
+        <div className="container-luxury py-12 sm:py-16">
           <nav
             aria-label="Breadcrumb"
             className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#68717a]"
@@ -231,7 +231,7 @@ export default function Contact() {
       </section>
 
       {/* Contact details + enquiry form */}
-      <section className="bg-[#f6f5f1] py-16 sm:py-20 lg:py-24">
+      <section className="bg-[#f6f5f1] py-12 sm:py-16">
         <div className="container-luxury grid gap-10 lg:grid-cols-[.78fr_1.22fr] lg:gap-14">
           <aside>
             <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#9b7a40]">
@@ -446,7 +446,7 @@ export default function Contact() {
       </section>
 
       {/* Support capabilities */}
-      <section className="bg-white py-16 sm:py-20 lg:py-24">
+      <section className="bg-white py-12 sm:py-16">
         <div className="container-luxury">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#9b7a40]">
@@ -482,7 +482,7 @@ export default function Contact() {
       </section>
 
       {/* Process */}
-      <section className="bg-[#f0eee8] py-16 sm:py-20 lg:py-24">
+      <section className="bg-[#f0eee8] py-12 sm:py-16">
         <div className="container-luxury">
           <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
             <div>
@@ -521,7 +521,7 @@ export default function Contact() {
 
     
 {/* Bottom CTA */}
-<section className="relative isolate overflow-hidden bg-[#f3efe6] py-16 text-white sm:py-20 lg:py-24">
+<section className="relative isolate overflow-hidden bg-[#f3efe6] py-8 text-white sm:py-10">
   {/* Decorative background */}
   <div className="pointer-events-none absolute inset-0 -z-10">
     <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-[#C6A15B]/15 blur-3xl" />
@@ -529,7 +529,7 @@ export default function Contact() {
   </div>
 
   <div className="container-luxury">
-    <div className="flex flex-col gap-8 rounded-3xl border border-[#263c50] bg-gradient-to-br from-[#142536] via-[#192d40] to-[#20384c] p-6 shadow-[0_24px_70px_rgba(20,37,54,.2)] sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-12">
+    <div className="flex flex-col gap-8 rounded-3xl border border-[#263c50] bg-gradient-to-br from-[#142536] via-[#192d40] to-[#20384c] p-6 shadow-[0_24px_70px_rgba(20,37,54,.2)] sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
       {/* Content */}
       <div className="max-w-2xl">
         <div className="inline-flex items-center gap-2 rounded-full border border-[#C6A15B]/30 bg-[#C6A15B]/10 px-4 py-2">

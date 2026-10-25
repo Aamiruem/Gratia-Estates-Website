@@ -360,7 +360,7 @@ export default function Videos() {
         path="/videos"
       />
 
-      <section className="bg-gradient-to-br from-[#f8f6f1] via-[#f4f0e7] to-[#ebe4d7] py-16 sm:py-20">
+      <section className="bg-gradient-to-br from-[#f8f6f1] via-[#f4f0e7] to-[#ebe4d7] py-12 sm:py-16">
         <div className="container-luxury grid items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(480px,1.1fr)] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(560px,1.1fr)] xl:gap-14">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-[#c9a45c]/40 bg-white/70 px-4 py-2 text-xs font-bold uppercase tracking-[.16em] text-[#8d6c32]">
@@ -732,7 +732,7 @@ export default function Videos() {
         </div>
       </section>
 
-      <section className="pb-16 sm:pb-20">
+      <section className="pb-12 sm:pb-16">
         <div className="container-luxury">
           <div className="relative isolate grid items-center gap-6 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d1b2a] via-[#142536] to-[#24405a] p-6 text-white sm:p-10 lg:grid-cols-[1.3fr_1fr]">
             <div

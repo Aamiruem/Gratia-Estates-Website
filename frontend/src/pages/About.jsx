@@ -105,7 +105,7 @@ export default function About() {
 
       <main className="overflow-hidden bg-white text-[#17283a]">
         {/* HERO */}
-        <section className="relative isolate flex min-h-[540px] items-center bg-[#142536] py-20 sm:min-h-[600px] sm:py-24">
+        <section className="relative isolate flex min-h-[540px] items-center bg-[#142536] py-16 sm:min-h-[560px] sm:py-20">
           <div
             className="absolute inset-0 -z-20 bg-cover bg-center"
             style={{
@@ -162,7 +162,7 @@ export default function About() {
         </section>
 
         {/* ABOUT INTRODUCTION */}
-        <section className="bg-[#f8f6f1] py-16 sm:py-24">
+        <section className="bg-[#f8f6f1] py-12 sm:py-16">
           <div className="container-luxury grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#9a7940]">
@@ -208,7 +208,7 @@ export default function About() {
         </section>
 
         {/* WHY GRATIA */}
-        <section className="py-16 sm:py-24">
+        <section className="py-12 sm:py-16">
           <div className="container-luxury">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#9a7940]">
@@ -243,7 +243,7 @@ export default function About() {
         </section>
 
         {/* PROPERTY TYPES */}
-        <section className="bg-[#f8f6f1] py-16 sm:py-24">
+        <section className="bg-[#f8f6f1] py-12 sm:py-16">
           <div className="container-luxury">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#9a7940]">
@@ -288,7 +288,7 @@ export default function About() {
         </section>
 
         {/* MISSION & VISION */}
-        <section className="py-16 sm:py-24">
+        <section className="py-12 sm:py-16">
           <div className="container-luxury">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#9a7940]">
@@ -326,7 +326,7 @@ export default function About() {
         </section>
 
         {/* PROCESS */}
-        <section className="bg-[#f8f6f1] py-16 sm:py-24">
+        <section className="bg-[#f8f6f1] py-12 sm:py-16">
           <div className="container-luxury">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#9a7940]">

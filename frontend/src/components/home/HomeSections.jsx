@@ -144,7 +144,7 @@ export function StatsBand() {
 // Image cards for each project stage, linking to the filtered project list.
 export function BrowseByStage() {
   return (
-    <section className="bg-white py-16 sm:py-24">
+    <section className="bg-white py-12 sm:py-16">
       <div className="container-luxury">
         <SectionHeading
           eyebrow="Find your fit"
@@ -200,8 +200,8 @@ export function BrowseByStage() {
 export function VideoTeaser() {
   const cover = projects[1]?.image || projects[0]?.image;
   return (
-    <section className="bg-[#f7f4ed] py-16 sm:py-24">
-      <div className="container-luxury grid items-center gap-10 overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#142536] via-[#1b3247] to-[#24405a] p-6 text-white sm:p-10 lg:grid-cols-2 lg:p-14">
+    <section className="bg-[#f7f4ed] py-8 sm:py-10">
+      <div className="container-luxury grid items-center gap-10 overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#142536] via-[#1b3247] to-[#24405a] p-6 text-white sm:p-10 lg:grid-cols-2">
         <div>
           <SectionHeading
             light
@@ -252,7 +252,7 @@ export function LatestInsights() {
   const latest = [...posts].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
   if (!latest.length) return null;
   return (
-    <section className="bg-white py-16 sm:py-24">
+    <section className="bg-white py-12 sm:py-16">
       <div className="container-luxury">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <SectionHeading
@@ -305,7 +305,7 @@ export function JourneySection() {
   const image = projects[5]?.image || projects[0]?.image;
 
   return (
-    <section className="relative isolate overflow-hidden bg-white py-16 sm:py-24">
+    <section className="relative isolate overflow-hidden bg-white py-12 sm:py-16">
       <div
         className="pointer-events-none absolute -right-40 top-10 -z-10 size-[30rem] rounded-full bg-[#f3ead8] blur-3xl"
         aria-hidden="true"
@@ -394,7 +394,7 @@ export function PopularLocations() {
   ).slice(0, 8);
 
   return (
-    <section className="bg-[#f7f4ed] py-16 sm:py-24">
+    <section className="bg-[#f7f4ed] py-12 sm:py-16">
       <div className="container-luxury">
         <SectionHeading
           eyebrow="Popular locations"
@@ -466,7 +466,7 @@ export function AmenitiesShowcase() {
     { icon: HandCoins, title: "Payment plans", tone: "bg-orange-50 text-orange-700 ring-orange-100" },
   ];
   return (
-    <section className="bg-white py-16 sm:py-24">
+    <section className="bg-white py-12 sm:py-16">
       <div className="container-luxury grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-center lg:gap-16">
         <div>
           <SectionHeading
@@ -525,7 +525,7 @@ const faqs = [
 // FAQ with FAQPage structured data for Google rich results.
 export function HomeFaq() {
   return (
-    <section className="bg-[#f7f4ed] py-16 sm:py-24">
+    <section className="bg-[#f7f4ed] py-12 sm:py-16">
       <JsonLd
         data={{
           "@context": "https://schema.org",

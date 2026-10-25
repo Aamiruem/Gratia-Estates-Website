@@ -17,7 +17,7 @@ export default function NotFound() {
         description="The page you requested could not be found."
         path="/404"
       />
-      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#fbf8f2] via-[#f6efe2] to-[#efe4cf] py-16 sm:py-24">
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#fbf8f2] via-[#f6efe2] to-[#efe4cf] py-12 sm:py-16">
         <div
           className="pointer-events-none absolute -right-24 top-0 -z-10 size-96 rounded-full bg-[#c9a45c]/15 blur-3xl"
           aria-hidden="true"

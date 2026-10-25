@@ -184,7 +184,7 @@ export default function ProjectDetails() {
           ],
         }}
       />
-      <section className="py-20">
+      <section className="py-12 sm:py-16">
         <div className="container-luxury grid gap-10 lg:grid-cols-[1.25fr_.75fr]">
           <div>
             <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-2xl border border-charcoal/10 bg-gradient-to-r from-white to-[#f5f1e8] px-5 py-4 shadow-sm sm:px-6">
@@ -608,7 +608,7 @@ export default function ProjectDetails() {
           </aside>
         </div>
       </section>
-      <section className="bg-ivory py-20">
+      <section className="bg-ivory py-12 sm:py-16">
         <div className="container-luxury">
           <div className="mt-6">
             <p className="text-[11px] font-bold uppercase tracking-[.2em] text-gold">
@@ -628,7 +628,7 @@ export default function ProjectDetails() {
             </div>
           </div>
 
-          <div className="mt-16 rounded-3xl bg-white p-10 sm:p-10">
+          <div className="mt-10 rounded-3xl bg-white p-6 sm:p-10">
             <p className="text-[11px] font-bold uppercase tracking-[.2em] text-gold">
               Around the project
             </p>
@@ -675,7 +675,7 @@ export default function ProjectDetails() {
         </div>
       </section>
       {suggestedProjects.length > 0 && (
-        <section className="py-20">
+        <section className="py-12 sm:py-16">
           <div className="container-luxury">
             <p className="text-[11px] font-bold uppercase tracking-[.2em] text-gold">
               Continue exploring

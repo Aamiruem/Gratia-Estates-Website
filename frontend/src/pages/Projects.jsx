@@ -147,7 +147,7 @@ export default function Projects() {
         </div>
       </section>
 
-      <section className="pb-16 sm:pb-20">
+      <section className="pb-12 sm:pb-16">
         <div className="container-luxury grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <div className="rounded-3xl border border-[#e7e2d8] bg-white p-6 shadow-sm sm:p-8">
             <p className="text-[11px] font-bold uppercase tracking-[.2em] text-[#80602b]">

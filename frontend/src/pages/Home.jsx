@@ -675,7 +675,7 @@ export default function Home() {
 
       <StatsBand />
 
-      <section className="py-16 sm:py-24">
+      <section className="py-12 sm:py-16">
         <div className="container-luxury">
           <div className="mb-10 flex flex-col justify-between gap-5 sm:mb-12 sm:flex-row sm:items-end">
             <div>
@@ -730,7 +730,7 @@ export default function Home() {
 
       <BrowseByStage />
 
-      <section className="bg-[#eef2f5] py-16 text-[#142536] sm:py-24">
+      <section className="bg-[#eef2f5] py-12 text-[#142536] sm:py-16">
         <div className="container-luxury grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
           <div>
             <div className="gold-line mb-5" />
@@ -778,7 +778,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 sm:py-24">
+      <section className="py-12 sm:py-16">
         <div className="container-luxury grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div>
             <div className="gold-line mb-5" />
@@ -831,7 +831,7 @@ export default function Home() {
 
       <HomeFaq />
 
-      <section className="bg-gold py-14 sm:py-20">
+      <section className="bg-gold py-12 sm:py-14">
         <div className="container-luxury flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-charcoal/60 sm:text-[11px]">

@@ -189,7 +189,7 @@ p {
    ========================================================= */
 
 .section {
-  padding: 90px 0;
+  padding: 64px 0;
 }
 
 .section-light {
@@ -600,7 +600,7 @@ select:focus-visible {
 
 @media (max-width: 1024px) {
   .section {
-    padding: 70px 0;
+    padding: 56px 0;
   }
 
   .container-luxury {
@@ -614,7 +614,7 @@ select:focus-visible {
   }
 
   .section {
-    padding: 55px 0;
+    padding: 48px 0;
   }
 
   .gold-line {

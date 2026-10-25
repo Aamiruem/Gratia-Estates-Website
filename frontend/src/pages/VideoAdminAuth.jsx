@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import Logo from "../components/Logo";
 import SEO from "../components/SEO";
 import { authApi } from "../services/authApi";
 
@@ -60,7 +61,7 @@ export default function VideoAdminAuth() {
           className="pointer-events-none absolute -right-36 -top-40 -z-10 size-[28rem] rounded-full bg-[#d9c18d]/25 blur-3xl"
           aria-hidden="true"
         />
-        <div className="container-luxury grid overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_90px_rgba(20,37,54,.16)] lg:min-h-[620px] lg:grid-cols-[.88fr_1.12fr]">
+        <div className="container-luxury grid overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_90px_rgba(20,37,54,.16)] lg:grid-cols-[.88fr_1.12fr]">
           <aside className="relative flex flex-col justify-between overflow-hidden bg-[#142536] p-7 text-white sm:p-10 lg:p-12">
             <div
               className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full border border-white/10"
@@ -72,13 +73,9 @@ export default function VideoAdminAuth() {
             />
             <div className="relative">
               <Link to="/" aria-label="Gratia Estates home">
-                <img
-                  src="/assets/white-logo.png"
-                  alt="Gratia Estates"
-                  className="h-12 w-auto object-contain"
-                />
+                <Logo variant="light" className="h-12 text-[18px]" />
               </Link>
-              <p className="mt-12 text-xs font-bold uppercase tracking-[.2em] text-[#e1c98f]">
+              <p className="mt-10 text-xs font-bold uppercase tracking-[.2em] text-[#e1c98f]">
                 Video library
               </p>
               <h1 className="mt-4 max-w-md font-display text-3xl font-semibold leading-tight text-white sm:text-4xl">
@@ -92,7 +89,7 @@ export default function VideoAdminAuth() {
                   : "Sign in with your Gratia Estates owner email and password."}
               </p>
             </div>
-            <div className="relative mt-12 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.06] p-4">
+            <div className="relative mt-10 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.06] p-4">
               <ShieldCheck
                 size={21}
                 className="mt-0.5 shrink-0 text-[#e1c98f]"
