@@ -1,0 +1,9 @@
+﻿dist
+.vite
+node_modules
+Dockerfile
+Caddyfile
+.dockerignore
+.env
+.env.*
+!.env.example
