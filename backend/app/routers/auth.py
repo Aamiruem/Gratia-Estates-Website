@@ -35,6 +35,10 @@ logger = logging.getLogger("gratia.auth")
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax")
 VIDEO_ADMIN_EMAIL = os.getenv("VIDEO_ADMIN_EMAIL", "").strip().lower()
+# Path the browser sees in front of the API, e.g. "/api" when the frontend host
+# proxies /api/* to this backend. The refresh cookie must be scoped to it.
+API_PATH_PREFIX = os.getenv("API_PATH_PREFIX", "").strip().rstrip("/")
+REFRESH_COOKIE_PATH = f"{API_PATH_PREFIX}/auth/refresh"
 
 
 def is_video_admin(user: User) -> bool:
@@ -60,13 +64,13 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
         secure=COOKIE_SECURE,
         samesite=COOKIE_SAMESITE,
         max_age=60 * 60 * 24 * REFRESH_TOKEN_EXPIRE_DAYS,
-        path="/auth/refresh",
+        path=REFRESH_COOKIE_PATH,
     )
 
 
 def clear_auth_cookies(response: Response):
     response.delete_cookie(key=ACCESS_COOKIE, path="/")
-    response.delete_cookie(key=REFRESH_COOKIE, path="/auth/refresh")
+    response.delete_cookie(key=REFRESH_COOKIE, path=REFRESH_COOKIE_PATH)
 
 
 PHONE_PREFIX = "phone_"

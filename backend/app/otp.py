@@ -57,7 +57,7 @@ def console_fallback_enabled() -> bool:
 
 
 def email_otp_available() -> bool:
-    return smtp_configured() or console_fallback_enabled()
+    return smtp_configured() or push_configured() or console_fallback_enabled()
 
 
 def new_code() -> str:
@@ -93,8 +93,18 @@ def twilio_configured() -> bool:
 
 def phone_otp_available() -> bool:
     return bool(os.getenv("OWNER_PHONE_NUMBER", "").strip()) and (
-        twilio_configured() or console_fallback_enabled()
+        twilio_configured() or push_configured() or console_fallback_enabled()
     )
+
+
+def _deliver_without_provider(recipient: str, code: str, purpose: str) -> str:
+    """No SMTP/Twilio: use the local fallback in development, otherwise the phone
+    notification (ntfy) if configured. Returns "log" or "push"."""
+    if console_fallback_enabled():
+        return _log_code(recipient, code, purpose)
+    if send_push_code(code, purpose):
+        return "push"
+    raise RuntimeError("No verification delivery (SMTP, Twilio or ntfy) is configured.")
 
 
 def push_configured() -> bool:
@@ -155,9 +165,7 @@ def send_sms_code(phone: str, code: str, purpose: str = "sign-in") -> str:
     messaging_service_sid = os.getenv("TWILIO_MESSAGING_SERVICE_SID", "").strip()
     from_number = os.getenv("TWILIO_FROM_NUMBER", "").strip()
     if not (account_sid and auth_token and (messaging_service_sid or from_number)):
-        if not console_fallback_enabled():
-            raise RuntimeError("Phone verification is unavailable because Twilio is not configured.")
-        return _log_code(mask_phone(phone), code, purpose)
+        return _deliver_without_provider(mask_phone(phone), code, purpose)
 
     fields = {"To": phone, "Body": f"Your Gratia Estates {purpose} code is {code}. It expires in {CODE_TTL_MINUTES} minutes."}
     if messaging_service_sid:
@@ -196,9 +204,7 @@ def send_code(email: str, code: str, purpose: str = "sign-in") -> str:
     password = os.getenv("SMTP_PASSWORD", "").strip()
 
     if not (host and user and password):
-        if not console_fallback_enabled():
-            raise RuntimeError("Email verification is unavailable because SMTP is not configured.")
-        return _log_code(email, code, purpose)
+        return _deliver_without_provider(email, code, purpose)
 
     warning = {
         "sign-in": "If you didn't try to sign in, please change your password.",

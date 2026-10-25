@@ -1,8 +1,11 @@
 const defaultHost =
   typeof window === "undefined" ? "127.0.0.1" : window.location.hostname;
+// Production builds call "/api", which the host (vercel.json) proxies to the backend.
 const apiUrl = (
   import.meta.env.VITE_API_URL ||
-  `${typeof window === "undefined" ? "http:" : window.location.protocol}//${defaultHost}:8000`
+  (import.meta.env.PROD
+    ? "/api"
+    : `${typeof window === "undefined" ? "http:" : window.location.protocol}//${defaultHost}:8000`)
 )
   .trim()
   .replace(/\/+$/, "");
