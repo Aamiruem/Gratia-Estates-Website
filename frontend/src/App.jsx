@@ -5,6 +5,7 @@ import About from "./pages/About";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import Contact from "./pages/Contact";
+import BookVisit from "./pages/BookVisit";
 import Videos from "./pages/Videos";
 import VideoAdminAuth from "./pages/VideoAdminAuth";
 import Blog from "./pages/Blog";
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:slug" element={<ProjectDetails />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/book-visit" element={<BookVisit />} />
         <Route path="/videos" element={<Videos />} />
         <Route
           path="/video-admin/login"

@@ -10,13 +10,15 @@ import {
 import { useEffect, useMemo, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
+import VideoPreview from "../components/VideoPreview";
+import VideoActions, { VideoInfo } from "../components/VideoActions";
+import { getYouTubeVideoId } from "../utils/videoLibrary";
 import {
   AdvisorCard,
   ArticleBody,
   AuthorBox,
   BuyerChecklist,
   EmiCalculator,
-  EnquiryCTA,
   FaqSection,
   JsonLd,
   KeyTakeaways,
@@ -47,8 +49,18 @@ export default function BlogDetails() {
   const post = getPostBySlug(slug);
   const articleRef = useRef(null);
 
+  // Links like /blog/post#emi-calculator should land on that section once the
+  // article has rendered (the layout scrolls to the top on every page change).
   useEffect(() => {
-    if (!window.location.hash) window.scrollTo(0, 0);
+    const id = window.location.hash.slice(1);
+    if (!id) {
+      window.scrollTo(0, 0);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => {
+      document.getElementById(decodeURIComponent(id))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+    return () => window.clearTimeout(timer);
   }, [slug]);
 
   const related = useMemo(
@@ -71,6 +83,7 @@ export default function BlogDetails() {
   }
 
   const author = getAuthor(post.authorId);
+  const videoId = post.video ? getYouTubeVideoId(post.video) : "";
 
   return (
     <>
@@ -190,6 +203,18 @@ export default function BlogDetails() {
               <div className="xl:hidden">
                 <TableOfContents sections={post.sections} variant="mobile" />
               </div>
+              {videoId && (
+                <figure className="mb-10 overflow-hidden rounded-2xl border border-[#e7e2d8] bg-black shadow-lg">
+                  <div className="aspect-video">
+                    <VideoPreview video={post} videoId={videoId} />
+                  </div>
+                  <figcaption className="space-y-3 bg-[#0f1f2e] p-4">
+                    <VideoInfo video={{ ...post, channel: post.videoCredit }} dark />
+                    <VideoActions videoId={videoId} title={post.title} dark />
+                    {post.videoCredit && <p className="text-xs text-white/55">{post.videoCredit}</p>}
+                  </figcaption>
+                </figure>
+              )}
               <KeyTakeaways items={post.takeaways} />
               <ArticleBody sections={post.sections} />
               {post.tools?.includes("emi") && <EmiCalculator />}
@@ -208,7 +233,6 @@ export default function BlogDetails() {
             </aside>
           </div>
 
-          <EnquiryCTA post={post} />
           <RelatedPosts posts={related} />
         </div>
       </article>

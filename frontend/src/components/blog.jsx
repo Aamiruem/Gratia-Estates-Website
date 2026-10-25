@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
+  BookOpen,
   Calculator,
   Check,
   ChevronDown,
@@ -10,48 +11,83 @@ import {
   Copy,
   Headset,
   HelpCircle,
+  Layers,
   Lightbulb,
   ListOrdered,
   MapPin,
   MessageCircle,
-  Phone,
+  Play,
+  PlayCircle,
+  Search,
   UserRound,
 } from "lucide-react";
-import { getAuthor, getCategoryLabel } from "../data/blog";
+import CallIcon from "./CallIcon";
+import { getAuthor, getCategoryLabel, getPostType } from "../data/blog";
 import { projects } from "../data/projects";
 import { formatDate } from "../utils/format";
 import { getReadingTime } from "../utils/blog";
 
+const TYPE_META = {
+  article: { label: "Article", icon: BookOpen, tone: "bg-white/95 text-[#142536]", cta: "Read article" },
+  video: { label: "Video guide", icon: PlayCircle, tone: "bg-rose-600 text-white", cta: "Watch video" },
+  checklist: { label: "Checklist", icon: ClipboardCheck, tone: "bg-emerald-600 text-white", cta: "Open checklist" },
+};
+
 function PostCard({ post, featured = false }) {
+  const type = TYPE_META[getPostType(post)] ?? TYPE_META.article;
+  const TypeIcon = type.icon;
   return (
-    <article className={`overflow-hidden rounded-2xl border border-black/10 bg-white shadow-luxury ${featured ? "md:grid md:grid-cols-2" : ""}`}>
-      <Link to={`/blog/${post.slug}`} className="block overflow-hidden">
+    <article
+      className={`group flex flex-col overflow-hidden rounded-2xl border border-[#e7e2d8] bg-white shadow-[0_12px_35px_rgba(20,37,54,.07)] transition hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(20,37,54,.12)] ${featured ? "md:grid md:grid-cols-2" : ""}`}
+    >
+      <Link to={`/blog/${post.slug}`} className="relative block overflow-hidden">
         <img
           src={post.image}
           alt={post.imageAlt ?? post.title}
-          className={`h-full w-full object-cover transition duration-500 hover:scale-[1.02] ${featured ? "min-h-64" : "aspect-[16/10]"}`}
+          className={`h-full w-full object-cover transition duration-500 group-hover:scale-[1.03] ${featured ? "min-h-72" : "aspect-[16/10]"}`}
           loading="lazy"
         />
+        <span className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] shadow ${type.tone}`}>
+          <TypeIcon size={13} aria-hidden="true" /> {type.label}
+        </span>
+        {post.video && (
+          <span className="absolute inset-0 grid place-items-center bg-[#0d1b2a]/25">
+            <span className="grid size-16 place-items-center rounded-full bg-white/95 text-rose-600 shadow-xl ring-8 ring-white/25 transition group-hover:scale-110">
+              <Play size={26} fill="currentColor" aria-hidden="true" />
+            </span>
+          </span>
+        )}
       </Link>
-      <div className="p-6 sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[.15em] text-gold">
+      <div className="flex flex-1 flex-col p-6 sm:p-7">
+        <p className="text-xs font-bold uppercase tracking-[.15em] text-[#9a7940]">
           {getCategoryLabel(post.category)}
         </p>
-        <h2 className={`${featured ? "mt-3 text-3xl" : "mt-2 text-2xl"} font-display leading-snug text-charcoal`}>
-          <Link to={`/blog/${post.slug}`} className="hover:text-gold">
+        <h2 className={`${featured ? "mt-3 text-3xl" : "mt-2 text-xl"} font-display font-semibold leading-snug text-[#142536]`}>
+          <Link to={`/blog/${post.slug}`} className="hover:text-[#9a7940]">
             {post.title}
           </Link>
         </h2>
-        <p className="mt-3 text-sm leading-7 text-charcoal/65">{post.excerpt}</p>
-        <p className="mt-4 text-xs text-charcoal/50">
-          {formatDate(post.date)} · {getReadingTime(post)} min read
-        </p>
-        <Link
-          to={`/blog/${post.slug}`}
-          className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-charcoal hover:text-gold"
-        >
-          Read article <ArrowRight size={16} aria-hidden="true" />
-        </Link>
+        <p className="mt-3 text-sm leading-6 text-[#5e6872]">{post.excerpt}</p>
+        {post.tags?.length > 0 && (
+          <ul className="mt-4 flex flex-wrap gap-1.5">
+            {post.tags.slice(0, 3).map((tag) => (
+              <li key={tag} className="rounded-full bg-[#f3ead8] px-2.5 py-1 text-[11px] font-semibold text-[#80602b]">
+                #{tag}
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#eee9df] pt-4 text-xs text-[#68717a]" style={{ marginTop: "1.25rem" }}>
+          <span>
+            {formatDate(post.date)} · {getReadingTime(post)} min {post.video ? "watch + read" : "read"}
+          </span>
+          <Link
+            to={`/blog/${post.slug}`}
+            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#142536] hover:text-[#9a7940]"
+          >
+            {type.cta} <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </article>
   );
@@ -67,49 +103,84 @@ export function FeaturedPost({ post }) {
 
 export function BlogFilters({
   categories,
+  types = [],
+  counts = {},
   total,
   query,
   category,
   sort,
+  type = "all",
   setQuery,
   setCategory,
   setSort,
+  setType,
 }) {
+  const tabs = [{ id: "all", label: "All" }, ...types];
   return (
-    <div className="grid gap-4 rounded-2xl border border-black/10 bg-white p-5 md:grid-cols-[minmax(0,1fr)_auto_auto]">
-      <label className="sr-only" htmlFor="blog-search">Search articles</label>
-      <input
-        id="blog-search"
-        type="search"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search articles..."
-        className="min-w-0 rounded-full border border-black/15 px-5 py-3 text-sm outline-none focus:border-gold"
-      />
-      <label className="sr-only" htmlFor="blog-category">Filter by category</label>
-      <select
-        id="blog-category"
-        value={category}
-        onChange={(event) => setCategory(event.target.value)}
-        className="rounded-full border border-black/15 bg-white px-5 py-3 text-sm outline-none focus:border-gold"
-      >
-        <option value="all">All categories</option>
-        {categories.map((item) => (
-          <option key={item.id} value={item.id}>{item.label}</option>
-        ))}
-      </select>
-      <label className="sr-only" htmlFor="blog-sort">Sort articles</label>
-      <select
-        id="blog-sort"
-        value={sort}
-        onChange={(event) => setSort(event.target.value)}
-        className="rounded-full border border-black/15 bg-white px-5 py-3 text-sm outline-none focus:border-gold"
-      >
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
-      </select>
-      <p className="text-xs text-charcoal/55 md:col-span-3">
-        {total} {total === 1 ? "article" : "articles"}
+    <div className="rounded-2xl border border-[#e7e2d8] bg-white p-4 shadow-sm sm:p-5">
+      {setType && (
+        <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Content type">
+          {tabs.map((tab) => {
+            const meta = TYPE_META[tab.id];
+            const Icon = meta?.icon ?? Layers;
+            const active = type === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setType(tab.id)}
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-[#142536] bg-[#142536] text-white" : "border-[#e7e2d8] bg-[#fbfaf7] text-[#142536] hover:border-[#c9a45c]"}`}
+              >
+                <Icon size={15} aria-hidden="true" />
+                {tab.label}
+                <span className={`rounded-full px-1.5 text-[11px] ${active ? "bg-[#c9a45c] text-[#142536]" : "bg-[#f3ead8] text-[#80602b]"}`}>
+                  {counts[tab.id] ?? 0}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto]">
+        <label className="relative block">
+          <span className="sr-only">Search articles</span>
+          <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#9a7940]" aria-hidden="true" />
+          <input
+            id="blog-search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search guides, locations, topics..."
+            className="w-full min-w-0 rounded-full border border-[#d9dce0] bg-[#fbfaf7] py-3 pl-11 pr-5 text-sm outline-none focus:border-[#c9a45c] focus:bg-white"
+          />
+        </label>
+        <label className="sr-only" htmlFor="blog-category">Filter by category</label>
+        <select
+          id="blog-category"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          className="rounded-full border border-[#d9dce0] bg-white px-5 py-3 text-sm outline-none focus:border-[#c9a45c]"
+        >
+          <option value="all">All categories</option>
+          {categories.map((item) => (
+            <option key={item.id} value={item.id}>{item.label}</option>
+          ))}
+        </select>
+        <label className="sr-only" htmlFor="blog-sort">Sort articles</label>
+        <select
+          id="blog-sort"
+          value={sort}
+          onChange={(event) => setSort(event.target.value)}
+          className="rounded-full border border-[#d9dce0] bg-white px-5 py-3 text-sm outline-none focus:border-[#c9a45c]"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+      </div>
+      <p className="mt-3 text-xs text-[#68717a]">
+        Showing {total} {total === 1 ? "result" : "results"}
       </p>
     </div>
   );
@@ -148,9 +219,9 @@ export function EnquiryCTA({ post }) {
           </a>
           <a
             href="tel:+919109776155"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
+            className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition bg-[#34C759] text-white shadow-[0_6px_16px_rgba(52,199,89,.35)] hover:bg-[#2DB14F]"
           >
-            <Phone size={17} aria-hidden="true" /> Call +91 91097 76155
+            <CallIcon size={17} /> Call +91 91097 76155
           </a>
         </div>
       </div>
@@ -358,7 +429,7 @@ export function EmiCalculator() {
     { label: "Tenure (years)", value: years, set: setYears, min: 1, max: 40, step: 1 },
   ];
   return (
-    <section className="my-12 overflow-hidden rounded-2xl border border-[#e7e2d8]">
+    <section id="emi-calculator" className="my-12 scroll-mt-28 overflow-hidden rounded-2xl border border-[#e7e2d8]">
       <div className="flex items-center gap-3 bg-[#f7f4ed] px-6 py-4">
         <span className="grid size-10 place-items-center rounded-xl bg-[#142536] text-[#e1c98f]">
           <Calculator size={19} aria-hidden="true" />
@@ -536,9 +607,9 @@ export function AdvisorCard({ post }) {
       </a>
       <a
         href="tel:+919109776155"
-        className="mt-2 flex items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
+        className="mt-2 flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition bg-[#34C759] text-white shadow-[0_6px_16px_rgba(52,199,89,.35)] hover:bg-[#2DB14F]"
       >
-        <Phone size={16} aria-hidden="true" /> +91 91097 76155
+        <CallIcon size={17} /> +91 91097 76155
       </a>
     </div>
   );

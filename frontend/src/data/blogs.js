@@ -252,4 +252,234 @@ export const posts = [
     ],
     tools: ["emi"],
   },
+  {
+    slug: "site-visit-checklist-gurgaon",
+    type: "checklist",
+    title: "Site Visit Checklist: What to Check at a Gurgaon Project",
+    excerpt:
+      "A practical, printable checklist for your next site visit, from the approach road and construction quality to the paperwork you should ask to see.",
+    date: "2026-10-20",
+    category: "buying-guide",
+    tags: ["site visit", "checklist", "due diligence", "construction quality"],
+    image:
+      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=85",
+    imageAlt: "Show apartment interior viewed during a site visit",
+    authorId: "gratia-advisory",
+    featured: false,
+    takeaways: [
+      "Visit on a weekday at peak hours to judge the real commute and traffic.",
+      "Look past the sample flat: inspect the actual tower, site and surroundings.",
+      "Ask for the HRERA registration and approvals during the visit, not after.",
+    ],
+    sections: [
+      {
+        id: "before-you-go",
+        heading: "Before you go",
+        paragraphs: [
+          "A site visit is far more useful when you arrive with a plan. Shortlist the units and floors you want to see, and note the questions you want answered.",
+        ],
+        list: [
+          "Note your budget ceiling, including all charges",
+          "Pick two or three unit types and preferred floors",
+          "Plan the drive at the time you would normally commute",
+          "Carry a measuring tape and take photos and notes",
+        ],
+      },
+      {
+        id: "location-and-access",
+        heading: "Location and access",
+        paragraphs: [
+          "Drive the last kilometre slowly. The condition of the approach road, nearby construction and the distance to daily needs matter as much as the project brochure.",
+        ],
+        list: [
+          "Width and condition of the approach road",
+          "Distance to schools, hospitals and markets",
+          "Public transport and the nearest metro or bus stop",
+          "Ongoing construction or vacant plots next to the project",
+        ],
+      },
+      {
+        id: "inside-the-project",
+        heading: "Inside the project",
+        paragraphs: [
+          "A sample flat shows the best version of a home. Where possible, also see the real tower, the common areas and the stage of construction.",
+        ],
+        list: [
+          "Construction progress matches what has been promised",
+          "Natural light, ventilation and the view from your preferred floor",
+          "Lifts, fire safety provisions and power backup",
+          "Clubhouse, open spaces and parking layout",
+        ],
+      },
+      {
+        id: "paperwork-to-ask-for",
+        heading: "Paperwork to ask for",
+        paragraphs: [
+          "Use the visit to collect documents you can verify later at home or with a lawyer.",
+        ],
+        table: {
+          headers: ["Document", "Why it matters"],
+          rows: [
+            ["HRERA registration", "Confirms the project is registered and lets you check its status"],
+            ["Approved layout and floor plans", "Shows what has been sanctioned for your unit"],
+            ["Cost sheet", "Lists every charge so you can compare projects fairly"],
+            ["Payment plan", "Shows how payments link to construction milestones"],
+            ["Draft builder-buyer agreement", "Sets out possession date, specifications and penalties"],
+          ],
+        },
+      },
+    ],
+    checklist: {
+      title: "Take-along site visit checklist",
+      items: [
+        "Checked the approach road and surroundings",
+        "Saw the actual tower and floor, not just the sample flat",
+        "Checked light, ventilation and view",
+        "Asked about possession timeline and delay terms",
+        "Collected the cost sheet and payment plan",
+        "Noted the HRERA registration number to verify online",
+        "Took photos and notes for comparison",
+      ],
+    },
+    faqs: [
+      {
+        q: "How long does a site visit usually take?",
+        a: "Plan for one to two hours per project, including the drive around the neighbourhood. Visiting two projects in a day is usually comfortable.",
+      },
+      {
+        q: "Should I visit more than once?",
+        a: "Yes, if you are seriously considering a project. A second visit at a different time of day shows you traffic, noise and light conditions you may have missed.",
+      },
+    ],
+  },
+
+  {
+    slug: "true-cost-of-buying-a-home-in-gurgaon",
+    type: "article",
+    title: "The True Cost of Buying a Home in Gurgaon",
+    excerpt:
+      "Base price is only the start. Here is every cost to budget for, from preferential location charges to stamp duty, GST and maintenance deposits.",
+    date: "2026-10-12",
+    category: "buying-guide",
+    tags: ["cost", "stamp duty", "gst", "budget", "home loan"],
+    image:
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=85",
+    imageAlt: "Residential building and keys representing the cost of buying a home",
+    authorId: "gratia-advisory",
+    featured: false,
+    takeaways: [
+      "Ask every developer for a full cost sheet so you compare projects on the same basis.",
+      "GST generally applies to under-construction homes, not completed ones with an occupancy certificate.",
+      "Stamp duty and registration are set by the Haryana government; check current rates before you budget.",
+    ],
+    sections: [
+      {
+        id: "price-components",
+        heading: "What the price is made of",
+        paragraphs: [
+          "Developers usually quote a base price per square foot. The amount you actually pay adds several other charges, which vary by project and unit.",
+        ],
+        table: {
+          headers: ["Cost", "What it covers"],
+          rows: [
+            ["Base price", "The quoted price for the unit's area"],
+            ["Preferential location charges (PLC)", "Extra for park-facing, corner or higher-floor units"],
+            ["Parking", "Covered or open parking slots"],
+            ["Club membership", "Access to the clubhouse and its facilities"],
+            ["External and infrastructure development charges", "Contributions towards area infrastructure, where applicable"],
+          ],
+        },
+      },
+      {
+        id: "government-charges",
+        heading: "Taxes and government charges",
+        paragraphs: [
+          "GST generally applies to under-construction property and is not charged on a completed property that has received its occupancy certificate. Stamp duty and registration charges are payable when the property is registered in your name.",
+          "Rates for stamp duty and registration are set by the Haryana government and can change, so confirm the current rates for your property before you finalise your budget.",
+        ],
+      },
+      {
+        id: "ongoing-costs",
+        heading: "One-time and ongoing costs after purchase",
+        paragraphs: [
+          "Plan for costs that arrive at or after possession, so they do not stretch your budget at the last minute.",
+        ],
+        list: [
+          "Interest-free maintenance security deposit",
+          "Advance maintenance charges for the first months",
+          "Utility connection charges for electricity and water",
+          "Interiors, furnishing and moving costs",
+        ],
+      },
+      {
+        id: "loan-planning",
+        heading: "Plan your home loan alongside the cost",
+        paragraphs: [
+          "Banks usually finance a share of the property value, so your down payment and the one-time charges come from your own funds. Use the EMI calculator below to test a comfortable monthly payment before you shortlist.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "Is GST charged on ready-to-move flats?",
+        a: "GST is generally not charged on a completed property that has an occupancy certificate. It typically applies to under-construction property. Confirm the treatment for your specific unit with the developer and your adviser.",
+      },
+      {
+        q: "How can I compare two projects fairly?",
+        a: "Ask both developers for a full cost sheet for a similar unit and compare the all-in price, not just the base rate per square foot.",
+      },
+    ],
+    tools: ["emi"],
+  },
+
+  {
+    slug: "video-guide-courtyard-2-gurugram",
+    type: "video",
+    title: "Video Guide: Inside Courtyard 2 by Roots Developers",
+    excerpt:
+      "Watch the project introduction for Roots Courtyard 2 in Gurugram, and use our checklist to get the most out of any video walkthrough before you visit.",
+    date: "2026-10-08",
+    category: "video-guides",
+    tags: ["video", "walkthrough", "roots developers", "gurugram"],
+    image: "https://i.ytimg.com/vi/zYpaludLhtU/maxresdefault.jpg",
+    imageAlt: "Courtyard 2 by Roots Developers video thumbnail",
+    video: "https://www.youtube.com/watch?v=zYpaludLhtU",
+    videoCredit: "Video published by RootsDevelopers on YouTube.",
+    authorId: "gratia-advisory",
+    featured: false,
+    takeaways: [
+      "Video tours are ideal for shortlisting before you spend time on site visits.",
+      "Note what the video shows and what it leaves out, then ask about the gaps.",
+      "Always confirm details from a video against official project documents.",
+    ],
+    sections: [
+      {
+        id: "about-the-video",
+        heading: "About this video",
+        paragraphs: [
+          "This project introduction for Courtyard 2 in Gurugram was published by RootsDevelopers. It gives an overview of the community and its positioning, which is a helpful starting point before you plan a visit.",
+        ],
+      },
+      {
+        id: "how-to-watch",
+        heading: "How to get the most from a video walkthrough",
+        paragraphs: [
+          "Developer videos show a project at its best. Watch with a list of questions and pause to note anything you want to verify in person.",
+        ],
+        list: [
+          "Which parts are actual site footage and which are renders",
+          "Views, open spaces and how close neighbouring buildings are",
+          "Amenities shown and whether they are complete or planned",
+          "Anything not shown, such as the approach road or parking",
+        ],
+      },
+      {
+        id: "next-steps",
+        heading: "From video to site visit",
+        paragraphs: [
+          "If the project fits your brief, the next step is to see it in person. Use our site visit checklist and ask for the HRERA registration and cost sheet before you commit.",
+        ],
+      },
+    ],
+  },
 ];

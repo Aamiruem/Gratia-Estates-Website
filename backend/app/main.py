@@ -28,6 +28,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import config  # noqa: F401
 from .database import create_tables
 from .routers.auth import router as auth_router
+from .routers.reactions import router as reactions_router
 from .routers.users import router as users_router
 from .routers.videos import router as videos_router
 from .seed import seed_sample_videos
@@ -80,6 +81,7 @@ def health():
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(videos_router)
+app.include_router(reactions_router)
 
 
 if __name__ == "__main__":

@@ -43,6 +43,33 @@ class Video(Base):
     )
 
 
+class VideoReaction(Base):
+    """Public like/dislike totals per YouTube video ID (shared by all visitors)."""
+
+    __tablename__ = "video_reactions"
+
+    youtube_id: Mapped[str] = mapped_column(String(11), primary_key=True)
+    likes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    dislikes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+
+class LoginChallenge(Base):
+    """A pending one-time sign-in code (only the hash is stored)."""
+
+    __tablename__ = "login_challenges"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    code_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    sent_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+
 class OwnerSetupState(Base):
     __tablename__ = "owner_setup_state"
 

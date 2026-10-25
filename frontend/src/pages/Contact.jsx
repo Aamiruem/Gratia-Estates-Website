@@ -1,79 +1,409 @@
 import {
   ArrowRight,
-  BadgeCheck,
+  BookOpen,
   Building2,
   CalendarCheck,
+  CalendarDays,
+  ChevronRight,
+  Clapperboard,
+  ClipboardList,
   Clock3,
-  Headset,
+  Compass,
+  FileSearch,
+  HeartHandshake,
+  Landmark,
   Mail,
   MapPin,
   MessageCircle,
-  Phone,
   ShieldCheck,
   Sparkles,
   Target,
+  UserRound,
   Wallet,
   Workflow,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import CallIcon from "../components/CallIcon";
 import SEO from "../components/SEO";
+import { projects } from "../data/projects";
+import { formatWhatsAppMessage, openWhatsApp } from "../utils/whatsapp";
 
 const WHATSAPP_NUMBER = "919109776155";
+const PHONE = "+91 91097 76155";
+const EMAIL = "purwarmanish@gmail.com";
+const OFFICE = "Iworkk Coworking Office Space, 90 IDC, Gurgaon, Haryana";
+const MAP_SRC = `https://www.google.com/maps?q=${encodeURIComponent("90 IDC Gurgaon Haryana")}&output=embed`;
 
-const supportFeatures = [
+
+const channels = [
   {
-    icon: Target,
-    title: "Requirement matching",
-    description:
-      "Shortlist residential opportunities around your preferred location, budget and lifestyle needs.",
+    icon: CallIcon,
+    title: "Call us",
+    detail: PHONE,
+    note: "Speak to an advisor directly",
+    href: "tel:+919109776155",
+    tone: "bg-[#34C759] text-white",
+    ring: "hover:border-[#34C759]/60",
   },
   {
-    icon: Building2,
-    title: "Project discovery",
-    description:
-      "Explore relevant pre-launch, newly launched and ready-to-move projects across Gurgaon.",
+    icon: MessageCircle,
+    title: "WhatsApp",
+    detail: "Chat with our team",
+    note: "Share your brief or ask a quick question",
+    href: `https://wa.me/${WHATSAPP_NUMBER}`,
+    external: true,
+    tone: "bg-[#25D366] text-white",
+    ring: "hover:border-[#25D366]/60",
   },
   {
-    icon: CalendarCheck,
-    title: "Site-visit coordination",
-    description:
-      "Discuss suitable options and coordinate the next steps for a project visit with our team.",
+    icon: Mail,
+    title: "Email",
+    detail: EMAIL,
+    note: "Send your questions or project brief",
+    href: `mailto:${EMAIL}`,
+    tone: "bg-sky-500 text-white",
+    ring: "hover:border-sky-400/60",
   },
   {
-    icon: ShieldCheck,
-    title: "Guided decision-making",
-    description:
-      "Get help comparing project details, amenities, connectivity and your stated priorities.",
+    icon: MapPin,
+    title: "Office",
+    detail: "90 IDC, Gurgaon",
+    note: "Iworkk Coworking Office Space",
+    href: "#office",
+    tone: "bg-[#c9a45c] text-[#142536]",
+    ring: "hover:border-[#c9a45c]/60",
   },
 ];
 
-const processSteps = [
+const prepareList = [
+  { icon: Wallet, title: "Budget range", text: "Including how much you plan to finance." },
+  { icon: MapPin, title: "Preferred sectors", text: "Areas close to work, school or family." },
+  { icon: Building2, title: "Home type and size", text: "Apartment, floor or villa; number of bedrooms." },
+  { icon: CalendarDays, title: "Move-in timeline", text: "Ready now, or open to an upcoming project." },
+];
+
+const contactFaqs = [
   {
-    number: "01",
-    title: "Share your brief",
-    description: "Tell us your budget, preferred area and property goals.",
+    q: "How do I book a site visit?",
+    a: "Please use our Book a Visit page. Choose a project, a day and a time in a few quick steps, and our team will be in touch to confirm the details with you.",
   },
   {
-    number: "02",
-    title: "Discuss options",
-    description:
-      "Our team reviews your needs and helps identify relevant projects.",
+    q: "Can we talk on the phone before visiting?",
+    a: "Yes. Call +91 91097 76155 or message us on WhatsApp to discuss your requirement first.",
   },
   {
-    number: "03",
-    title: "Compare details",
-    description:
-      "Review the key features and practical considerations for each option.",
+    q: "What happens after I send an enquiry?",
+    a: "An advisor reviews your requirement and gets back to you with relevant project options and next steps.",
   },
   {
-    number: "04",
-    title: "Plan the next step",
-    description: "Arrange a conversation or site visit when you are ready.",
+    q: "Where is your office?",
+    a: "Iworkk Coworking Office Space, 90 IDC, Gurgaon, Haryana. See the map on this page for directions.",
   },
 ];
+
+const browseLinks = [
+  { to: "/projects", icon: Building2, title: "Browse projects", text: "Compare listed Gurgaon projects", tone: "bg-emerald-100 text-emerald-700" },
+  { to: "/videos", icon: Clapperboard, title: "Watch videos", text: "Project walkthroughs and stories", tone: "bg-rose-100 text-rose-700" },
+  { to: "/blog", icon: BookOpen, title: "Read guides", text: "Buying tips and location insights", tone: "bg-violet-100 text-violet-700" },
+];
+
 
 export default function Contact() {
+  return (
+    <>
+      <SEO
+        title="Contact Gratia Estates | Gurgaon Property Help & Support"
+        description="Questions about Gurgaon property? Contact Gratia Estates by phone, WhatsApp or email. Our team is glad to help with projects, pricing, home loans and paperwork."
+        path="/contact"
+      />
+
+      {/* Hero with site-visit booking form */}
+      <section className="relative isolate overflow-hidden border-b border-[#e7e2d8] bg-gradient-to-br from-[#fbf8f2] via-[#f6efe2] to-[#efe4cf]">
+        <div
+          className="pointer-events-none absolute -right-32 -top-32 -z-10 size-[28rem] rounded-full bg-[#c9a45c]/20 blur-3xl"
+          aria-hidden="true"
+        />
+        <div className="container-luxury grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.05fr_.95fr] lg:gap-14">
+          <div>
+            <nav
+              aria-label="Breadcrumb"
+              className="flex items-center gap-2 text-xs font-semibold text-[#68717a]"
+            >
+              <Link to="/" className="transition hover:text-[#9a7940]">
+                Home
+              </Link>
+              <ChevronRight size={14} aria-hidden="true" />
+              <span className="text-[#9a7940]" aria-current="page">
+                Contact us
+              </span>
+            </nav>
+            <p className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#c9a45c]/40 bg-white/80 py-1.5 pl-1.5 pr-4 text-xs font-bold text-[#142536] shadow-sm">
+              <span className="grid size-7 place-items-center rounded-full bg-[#142536] text-[#e1c98f]">
+                <Sparkles size={14} aria-hidden="true" />
+              </span>
+              We're here to help
+            </p>
+            <h1 className="mt-5 font-display text-4xl font-bold leading-[1.1] text-[#142536] sm:text-5xl xl:text-[3.4rem]">
+              We'd love to
+              <span className="block bg-gradient-to-r from-[#9a7335] via-[#c9a45c] to-[#9a7335] bg-clip-text text-transparent">
+                hear from you.
+              </span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-[#4b5966] sm:text-lg sm:leading-8">
+              Whether you have a quick question or need detailed guidance, our
+              team is glad to help. No question is too small, so please reach
+              out in whichever way suits you best.
+            </p>
+            <ul className="mt-7 grid gap-3 sm:grid-cols-2">
+              {channels.map(({ icon: Icon, title, detail, href, external, tone }) => (
+                <li key={title}>
+                  <a
+                    href={href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noreferrer" : undefined}
+                    className="flex items-center gap-3 rounded-2xl border border-[#e7e2d8] bg-white/90 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${tone}`}>
+                      <Icon size={18} aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[11px] font-bold uppercase tracking-[.12em] text-[#80602b]">
+                        {title}
+                      </span>
+                      <span className="block truncate text-sm font-semibold text-[#142536]">
+                        {detail}
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <HelpTopics />
+        </div>
+      </section>
+
+      {/* Requirement form + office */}
+      <section className="bg-white py-12 sm:py-16">
+        <div className="container-luxury grid gap-8 lg:grid-cols-[1.25fr_.75fr] lg:gap-10">
+          <EnquiryForm />
+          <aside id="office" className="scroll-mt-28 space-y-5">
+            <div className="overflow-hidden rounded-3xl border border-[#e7e2d8] bg-[#fbfaf7] shadow-sm">
+              <iframe
+                title="Gratia Estates office location"
+                src={MAP_SRC}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-64 w-full border-0 lg:h-72"
+              />
+              <div className="flex items-start gap-3 p-5">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#c9a45c] text-[#142536]">
+                  <MapPin size={18} aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="font-semibold text-[#142536]">Our office</p>
+                  <p className="mt-1 text-sm leading-6 text-[#5e6872]">{OFFICE}</p>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("90 IDC Gurgaon Haryana")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-[#80602b] hover:text-[#142536]"
+                  >
+                    Get directions <ArrowRight size={14} aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-3xl bg-gradient-to-br from-[#0d1b2a] via-[#142536] to-[#24405a] p-6 text-white">
+              <span className="grid size-11 place-items-center rounded-xl bg-[#c9a45c] text-[#142536]">
+                <Clock3 size={20} aria-hidden="true" />
+              </span>
+              <p className="mt-4 font-display text-xl font-semibold">Prefer a quick conversation?</p>
+              <p className="mt-1 text-sm leading-6 text-white/70">
+                Call or message us with a convenient time to discuss your
+                property goals.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <a
+                  href="tel:+919109776155"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#34C759] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2DB14F]"
+                >
+                  <CallIcon size={16} /> Call
+                </a>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1EBE5A]"
+                >
+                  <MessageCircle size={16} aria-hidden="true" /> WhatsApp
+                </a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      {/* Prepare + contact FAQs (Contact-specific, not repeated elsewhere) */}
+      <section className="py-12 sm:py-16">
+        <div className="container-luxury grid gap-8 lg:grid-cols-[.9fr_1.1fr] lg:gap-12">
+          <div className="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-6 sm:p-8">
+            <span className="grid size-12 place-items-center rounded-2xl bg-emerald-600 text-white">
+              <ClipboardList size={22} aria-hidden="true" />
+            </span>
+            <h2 className="mt-5 font-display text-2xl font-semibold text-[#142536] sm:text-3xl">
+              Keep these ready before you call
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#4b5966]">
+              A few details help us suggest the right projects in the first conversation.
+            </p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {prepareList.map(({ icon: Icon, title, text }) => (
+                <li key={title} className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-700">
+                    <Icon size={17} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-semibold text-[#142536]">{title}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-[#5e6872]">{text}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <SectionHeading eyebrow="Before you get in touch" title="Contact FAQs" />
+            <div className="mt-6 space-y-3">
+              {contactFaqs.map(({ q, a }, index) => (
+                <details
+                  key={q}
+                  open={index === 0}
+                  className="group rounded-2xl border border-[#e7e2d8] bg-white p-5 shadow-sm"
+                >
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-4 font-semibold text-[#142536] [&::-webkit-details-marker]:hidden">
+                    {q}
+                    <ChevronRight
+                      size={18}
+                      className="mt-0.5 shrink-0 text-[#c9a45c] transition group-open:rotate-90"
+                      aria-hidden="true"
+                    />
+                  </summary>
+                  <p className="mt-3 text-sm leading-6 text-[#5e6872]">{a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Closing: browse-first links */}
+      <section className="pb-12 sm:pb-16">
+        <div className="container-luxury">
+          <p className="text-[11px] font-bold uppercase tracking-[.2em] text-[#80602b]">
+            Prefer to browse first?
+          </p>
+          <ul className="mt-4 grid gap-4 sm:grid-cols-3">
+            {browseLinks.map(({ to, icon: Icon, title, text, tone }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  className="group flex items-center gap-4 rounded-2xl border border-[#e7e2d8] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#c9a45c]"
+                >
+                  <span className={`grid size-12 shrink-0 place-items-center rounded-2xl ${tone}`}>
+                    <Icon size={22} aria-hidden="true" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block font-semibold text-[#142536]">{title}</span>
+                    <span className="text-sm text-[#5e6872]">{text}</span>
+                  </span>
+                  <ArrowRight size={17} className="text-[#c9a45c] transition group-hover:translate-x-1" aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function SectionHeading({ eyebrow, title }) {
+  return (
+    <div>
+      <p className="text-[11px] font-bold uppercase tracking-[.22em] text-[#80602b]">{eyebrow}</p>
+      <h2 className="mt-2 font-display text-3xl font-semibold leading-tight text-[#142536] sm:text-4xl">
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+// Support panel: pick a topic and WhatsApp opens with a polite, pre-written message.
+const helpTopics = [
+  { icon: Building2, label: "Project information", tone: "bg-emerald-100 text-emerald-700", message: "I'd like some information about a project." },
+  { icon: Wallet, label: "Pricing & payment plans", tone: "bg-amber-100 text-amber-700", message: "Could you please share pricing and payment plan details?" },
+  { icon: Landmark, label: "Home loan guidance", tone: "bg-sky-100 text-sky-700", message: "I'd appreciate some guidance on home loans." },
+  { icon: FileSearch, label: "Documents & RERA", tone: "bg-violet-100 text-violet-700", message: "I have a question about project documents and RERA." },
+  { icon: Compass, label: "Help me shortlist", tone: "bg-rose-100 text-rose-700", message: "Could you help me shortlist suitable projects?" },
+  { icon: HeartHandshake, label: "Something else", tone: "bg-orange-100 text-orange-700", message: "I have a question." },
+];
+
+function HelpTopics() {
+  return (
+    <div className="rounded-3xl border border-[#e7e2d8] bg-white p-6 shadow-[0_30px_70px_rgba(20,37,54,.12)] sm:p-8">
+      <div className="flex items-center gap-3">
+        <span className="grid size-12 place-items-center rounded-2xl bg-[#142536] text-[#e1c98f]">
+          <MessageCircle size={22} aria-hidden="true" />
+        </span>
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#80602b]">Customer support</p>
+          <h2 className="font-display text-2xl font-semibold text-[#142536]">How can we help you today?</h2>
+        </div>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-[#5e6872]">
+        Choose a topic and we'll open WhatsApp with a message ready for you. Our
+        team will be happy to assist.
+      </p>
+      <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
+        {helpTopics.map(({ icon: Icon, label, tone, message }) => (
+          <li key={label}>
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hello Gratia Estates, ${message} Thank you.`)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-3 rounded-2xl border border-[#eee9df] bg-[#fbfaf7] p-3 transition hover:-translate-y-0.5 hover:border-[#c9a45c] hover:bg-white hover:shadow-sm"
+            >
+              <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${tone}`}>
+                <Icon size={18} aria-hidden="true" />
+              </span>
+              <span className="flex-1 text-sm font-semibold text-[#142536]">{label}</span>
+              <ChevronRight size={16} className="text-[#c9a45c] transition group-hover:translate-x-0.5" aria-hidden="true" />
+            </a>
+          </li>
+        ))}
+      </ul>
+      <Link
+        to="/book-visit"
+        className="mt-5 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-[#0f2a33] to-[#0f3d34] p-4 text-white transition hover:opacity-95"
+      >
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-400/20 text-emerald-300">
+          <CalendarCheck size={19} aria-hidden="true" />
+        </span>
+        <span className="flex-1">
+          <span className="block text-sm font-semibold">Ready to see a project?</span>
+          <span className="text-xs text-white/70">Book a site visit in a few quick steps</span>
+        </span>
+        <ArrowRight size={17} className="text-emerald-300" aria-hidden="true" />
+      </Link>
+    </div>
+  );
+}
+
+// Detailed requirement form (unchanged logic): opens a WhatsApp draft.
+function EnquiryForm() {
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -100,552 +430,121 @@ export default function Contact() {
     if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
       nextErrors.phone = "Enter a valid phone number (10–15 digits).";
     }
-    if (
-      form.email.trim() &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
-    ) {
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
       nextErrors.email = "Enter a valid email address.";
     }
-
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
       return;
     }
 
-    const message = [
-      "Hello Gratia Estates, I would like to discuss a property requirement.",
-      "",
-      `Name: ${form.name.trim()}`,
-      `Phone: ${form.phone.trim()}`,
-      `Email: ${form.email.trim() || "Not provided"}`,
-      `Budget: ${form.budget || "Not specified"}`,
-      `Preferred location: ${form.location.trim() || "Not specified"}`,
-      `Property type: ${form.propertyType || "Not specified"}`,
-      `Buying timeline: ${form.timeline || "Not specified"}`,
-      `Additional details: ${form.message.trim() || "Not provided"}`,
-    ].join("\n");
-
-    window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
+    openWhatsApp(
+      formatWhatsAppMessage("🔑 *New Property Enquiry*", [
+        [
+          ["👤", "Name", form.name],
+          ["📞", "Phone", form.phone],
+          ["✉️", "Email", form.email],
+        ],
+        [
+          ["💰", "Budget", form.budget],
+          ["📍", "Preferred location", form.location],
+          ["🏢", "Property type", form.propertyType],
+          ["⏳", "Buying timeline", form.timeline],
+          ["📝", "Details", form.message],
+        ],
+      ]),
     );
   };
 
   return (
-    <>
-      <SEO
-        title="Contact Gratia Estates | Gurgaon Property Advisory"
-        description="Contact Gratia Estates for personalised guidance on Gurgaon residential projects, project shortlisting, property comparisons and site visits."
-        path="/contact"
-      />
-
-      {/* Hero */}
-      <section className="relative isolate overflow-hidden bg-[#f8f6f1] text-[#17283a]">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_85%_15%,rgba(198,161,91,0.14),transparent_42%),linear-gradient(120deg,#f8f6f1_0%,#f3efe6_62%,#eee7d9_100%)]" />
-        <div className="container-luxury py-12 sm:py-16">
-          <nav
-            aria-label="Breadcrumb"
-            className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#68717a]"
-          >
-            <Link to="/" className="transition hover:text-[#8d6c32]">
-              Home
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span className="text-[#8d6c32]">Contact us</span>
-          </nav>
-
-          <div className="mt-10 grid items-center gap-10 lg:mt-14 lg:grid-cols-[1.2fr_.8fr]">
-            <div className="max-w-3xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#c6a15b]/40 bg-[#c6a15b]/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[.2em] text-[#8d6c32]">
-                <Sparkles size={14} /> Personalised property advisory
-              </div>
-              <h1 className="max-w-3xl font-display text-4xl font-semibold leading-[1.08] text-[#142536] sm:text-5xl lg:text-6xl xl:text-7xl">
-                Your next address
-                <span className="mt-2 block text-[#9a7940]">
-                  starts with a conversation.
-                </span>
-              </h1>
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-[#5e6872] sm:text-base sm:leading-8">
-                Tell us what matters to you. We’ll help you explore relevant
-                residential projects across Gurgaon, compare your options and
-                plan the next step at your pace.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a
-                  href="#enquiry-form"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#c6a15b] px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-[#142536] transition hover:bg-[#dfc58f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c6a15b]/35"
-                >
-                  Share your requirement <ArrowRight size={16} />
-                </a>
-                <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#17283a]/25 px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-[#17283a] transition hover:border-[#c6a15b] hover:text-[#8d6c32]"
-                >
-                  <MessageCircle size={16} /> WhatsApp us
-                </a>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 lg:pl-8">
-              <div className="rounded-3xl border border-[#17283a]/10 bg-white/80 p-5 shadow-sm sm:p-6">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[#f5efe3] text-[#9a7940]">
-                  <MapPin size={21} />
-                </div>
-                <p className="font-display text-xl text-[#142536] sm:text-2xl">
-                  Gurgaon
-                </p>
-                <p className="mt-2 text-xs leading-5 text-[#5e6872]">
-                  Focused local project guidance
-                </p>
-              </div>
-              <div className="mt-8 rounded-3xl border border-[#17283a]/10 bg-white/80 p-5 shadow-sm sm:p-6">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[#f5efe3] text-[#9a7940]">
-                  <Headset size={21} />
-                </div>
-                <p className="font-display text-xl text-[#142536] sm:text-2xl">
-                  One-to-one
-                </p>
-                <p className="mt-2 text-xs leading-5 text-[#5e6872]">
-                  Support shaped around your needs
-                </p>
-              </div>
-              <div className="col-span-2 flex items-center gap-4 rounded-3xl border border-[#c6a15b]/40 bg-[#f5efe3] p-5 sm:p-6">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#c6a15b] text-[#142536]">
-                  <BadgeCheck size={21} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-[#17283a]">
-                    Clear, considered guidance
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-[#5e6872]">
-                    Understand the options before deciding what works for you.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact details + enquiry form */}
-      <section className="bg-[#f6f5f1] py-12 sm:py-16">
-        <div className="container-luxury grid gap-10 lg:grid-cols-[.78fr_1.22fr] lg:gap-14">
-          <aside>
-            <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#9b7a40]">
-              Connect with our team
-            </p>
-            <h2 className="mt-3 font-display text-3xl leading-tight text-[#142536] sm:text-4xl">
-              A more considered way to find your home.
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-[#5e6872] sm:text-base">
-              From the first shortlist to arranging a site visit, share your
-              priorities and we’ll help you work through the available
-              information for relevant Gurgaon residential projects.
-            </p>
-
-            <div className="mt-8 space-y-3">
-              <ContactCard
-                icon={Phone}
-                eyebrow="Call our team"
-                title="+91 91097 76155"
-                detail="Speak to us about your requirement"
-                href="tel:+919109776155"
-              />
-              <ContactCard
-                icon={Mail}
-                eyebrow="Email enquiries"
-                title="purwarmanish@gmail.com"
-                detail="Send your questions or project brief"
-                href="mailto:purwarmanish@gmail.com"
-              />
-              <ContactCard
-                icon={MapPin}
-                eyebrow="Office location"
-                title="Iworkk Coworking Office Space"
-                detail="90 IDC, Gurgaon, Haryana"
-              />
-            </div>
-
-            <div className="mt-5 rounded-2xl border border-[#c6a15b]/30 bg-white p-5">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f3ead8] text-[#9b7a40]">
-                  <Clock3 size={19} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-[#142536]">
-                    Prefer a quick conversation?
-                  </h3>
-                  <p className="mt-1 text-xs leading-5 text-[#5e6872]">
-                    Call or message us with a convenient time to discuss your
-                    property goals.
-                  </p>
-                  <a
-                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-[#8d6c32] hover:text-[#142536]"
-                  >
-                    Start a WhatsApp chat <ArrowRight size={14} />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          <div id="enquiry-form" className="scroll-mt-28">
-            <form
-              onSubmit={submit}
-              noValidate
-              className="rounded-3xl border border-[#e7e2d8] bg-white p-6 shadow-[0_22px_70px_rgba(20,37,54,.08)] sm:p-9 lg:p-10"
-            >
-              <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#9b7a40]">
-                    Property enquiry
-                  </p>
-                  <h2 className="mt-2 font-display text-2xl leading-tight text-[#142536] sm:text-3xl">
-                    Tell us what you’re looking for
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-[#5e6872]">
-                    Complete the details below. Your enquiry will open in
-                    WhatsApp for you to review and send.
-                  </p>
-                </div>
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#f3ead8] text-[#9b7a40]">
-                  <Workflow size={23} />
-                </div>
-              </div>
-
-              <div className="mt-7 grid gap-x-5 gap-y-5 sm:grid-cols-2">
-                <Field
-                  label="Full name"
-                  placeholder="e.g. Your name"
-                  value={form.name}
-                  onChange={(value) => updateField("name", value)}
-                  required
-                  error={errors.name}
-                  autoComplete="name"
-                />
-                <Field
-                  label="Phone number"
-                  placeholder="10-digit mobile number"
-                  value={form.phone}
-                  onChange={(value) => updateField("phone", value)}
-                  required
-                  error={errors.phone}
-                  type="tel"
-                  autoComplete="tel"
-                />
-                <Field
-                  label="Email address"
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={(value) => updateField("email", value)}
-                  error={errors.email}
-                  type="email"
-                  autoComplete="email"
-                />
-                <SelectField
-                  label="Approximate budget"
-                  value={form.budget}
-                  onChange={(value) => updateField("budget", value)}
-                  options={[
-                    "Under ₹1 Cr",
-                    "₹1 Cr – ₹2 Cr",
-                    "₹2 Cr – ₹3 Cr",
-                    "₹3 Cr – ₹5 Cr",
-                    "₹5 Cr – ₹10 Cr",
-                    "₹10 Cr+",
-                    "Not decided yet",
-                  ]}
-                  placeholder="Choose your budget"
-                  icon={Wallet}
-                />
-                <SelectField
-                  label="Property preference"
-                  value={form.propertyType}
-                  onChange={(value) => updateField("propertyType", value)}
-                  options={[
-                    "Apartment / Flat",
-                    "Luxury residence",
-                    "Builder floor",
-                    "Villa / Independent home",
-                    "Plot",
-                    "Open to suggestions",
-                  ]}
-                  placeholder="Choose property type"
-                  icon={Building2}
-                />
-                <SelectField
-                  label="Buying timeline"
-                  value={form.timeline}
-                  onChange={(value) => updateField("timeline", value)}
-                  options={[
-                    "As soon as possible",
-                    "Within 3 months",
-                    "Within 3–6 months",
-                    "Within 6–12 months",
-                    "Just exploring",
-                  ]}
-                  placeholder="When are you planning?"
-                  icon={CalendarCheck}
-                />
-                <div className="sm:col-span-2">
-                  <Field
-                    label="Preferred Gurgaon location"
-                    placeholder="e.g. Dwarka Expressway, Golf Course Road, New Gurgaon"
-                    value={form.location}
-                    onChange={(value) => updateField("location", value)}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block">
-                    <span className="mb-2 block text-[11px] font-bold uppercase tracking-[.12em] text-[#536272]">
-                      Anything else we should know?{" "}
-                      <span className="font-normal normal-case tracking-normal text-[#68717a]">
-                        (optional)
-                      </span>
-                    </span>
-                    <textarea
-                      rows={4}
-                      value={form.message}
-                      onChange={(event) =>
-                        updateField("message", event.target.value)
-                      }
-                      placeholder="Share your priorities, preferred possession timeline, amenities or questions..."
-                      className="w-full resize-y rounded-2xl border border-[#d9dce0] bg-[#fbfaf7] px-4 py-3.5 text-sm text-[#142536] outline-none transition placeholder:text-[#87909a] focus:border-[#c6a15b] focus:bg-white focus:ring-4 focus:ring-[#c6a15b]/10"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="mt-7 inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#142536] px-6 py-4 text-xs font-bold uppercase tracking-[.13em] text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#c6a15b] hover:text-[#142536] hover:shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c6a15b]/35"
-              >
-                <MessageCircle size={17} /> Continue to WhatsApp{" "}
-                <ArrowRight size={16} />
-              </button>
-              <div className="mt-4 flex items-start justify-center gap-2 text-center text-[11px] leading-5 text-[#68717a]">
-                <ShieldCheck
-                  size={14}
-                  className="mt-0.5 shrink-0 text-[#9b7a40]"
-                />
-                <p>
-                  Your details are used to respond to your property enquiry.
-                  WhatsApp opens with a message draft; you choose whether to
-                  send it.
-                </p>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Support capabilities */}
-      <section className="bg-white py-12 sm:py-16">
-        <div className="container-luxury">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#9b7a40]">
-              How we can support you
-            </p>
-            <h2 className="mt-3 font-display text-3xl leading-tight text-[#142536] sm:text-4xl">
-              Useful guidance at every step.
-            </h2>
-            <p className="mt-3 text-sm leading-7 text-[#5e6872] sm:text-base">
-              A practical, buyer-focused process to help you move from a broad
-              search to a clearer shortlist.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {supportFeatures.map(({ icon: Icon, title, description }) => (
-              <article
-                key={title}
-                className="group rounded-2xl border border-[#e7e2d8] bg-[#fbfaf7] p-6 transition duration-300 hover:-translate-y-1 hover:border-[#c6a15b]/60 hover:bg-white hover:shadow-[0_18px_45px_rgba(20,37,54,.09)] sm:rounded-3xl sm:p-7"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eee3cc] text-[#8d6c32] transition group-hover:bg-[#142536] group-hover:text-[#d5b778]">
-                  <Icon size={22} />
-                </div>
-                <h3 className="mt-5 text-base font-semibold text-[#142536]">
-                  {title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-[#5e6872]">
-                  {description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Process */}
-      <section className="bg-[#f0eee8] py-12 sm:py-16">
-        <div className="container-luxury">
-          <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[.24em] text-[#9b7a40]">
-                Simple, structured, personal
-              </p>
-              <h2 className="mt-3 font-display text-3xl leading-tight text-[#142536] sm:text-4xl">
-                From first message to next steps.
-              </h2>
-            </div>
-            <p className="max-w-xl text-sm leading-7 text-[#5e6872] sm:text-base lg:justify-self-end">
-              No need to have every detail figured out. Start with what you
-              know, and we can work through the rest of your brief together.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {processSteps.map((step) => (
-              <div
-                key={step.number}
-                className="rounded-2xl border border-[#e7e2d8] bg-white p-6 sm:p-7"
-              >
-                <p className="font-display text-3xl text-[#b08b4a]">
-                  {step.number}
-                </p>
-                <h3 className="mt-5 text-base font-semibold text-[#142536]">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-[#5e6872]">
-                  {step.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-    
-{/* Bottom CTA */}
-<section className="relative isolate overflow-hidden bg-[#f3efe6] py-8 text-white sm:py-10">
-  {/* Decorative background */}
-  <div className="pointer-events-none absolute inset-0 -z-10">
-    <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-[#C6A15B]/15 blur-3xl" />
-    <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#142536]/[0.06] blur-3xl" />
-  </div>
-
-  <div className="container-luxury">
-    <div className="flex flex-col gap-8 rounded-3xl border border-[#263c50] bg-gradient-to-br from-[#142536] via-[#192d40] to-[#20384c] p-6 shadow-[0_24px_70px_rgba(20,37,54,.2)] sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
-      {/* Content */}
-      <div className="max-w-2xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#C6A15B]/30 bg-[#C6A15B]/10 px-4 py-2">
-          <span className="h-2 w-2 rounded-full bg-[#C6A15B]" />
-          <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#E4C98E] sm:text-xs">
-            Gratia Estates · Gurgaon
+    <form
+      id="enquiry-form"
+      onSubmit={submit}
+      noValidate
+      className="scroll-mt-28 rounded-3xl border border-[#e7e2d8] bg-[#fbfaf7] p-6 sm:p-9"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[.2em] text-[#80602b]">
+            Property enquiry
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-[#142536] sm:text-3xl">
+            Tell us what you're looking for
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#5e6872]">
+            Complete the details below. Your enquiry opens in WhatsApp for you to
+            review and send.
           </p>
         </div>
-
-        <h2 className="mt-6 font-display text-3xl font-semibold leading-tight text-[#F8F7F2] sm:text-4xl lg:text-5xl">
-          Your next address
-          <span className="mt-1 block text-[#D9B873]">
-            starts with the right advice.
-          </span>
-        </h2>
-
-        <p className="mt-5 max-w-xl text-sm leading-7 text-[#D1D2CC] sm:text-base sm:leading-8">
-          Tell us your budget, preferred location and property goals.
-          We’ll help you explore relevant residential projects across
-          Gurgaon with focused, one-to-one guidance.
-        </p>
-
-        {/* Trust points */}
-        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3">
-          <div className="flex items-center gap-2 text-sm text-[#E8E8E2]">
-            <ShieldCheck size={17} className="shrink-0 text-[#D9B873]" />
-            Personalised guidance
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-[#E8E8E2]">
-            <MapPin size={17} className="shrink-0 text-[#D9B873]" />
-            Gurgaon-focused
-          </div>
-        </div>
+        <span className="hidden size-12 shrink-0 place-items-center rounded-2xl bg-violet-100 text-violet-700 sm:grid">
+          <Workflow size={22} aria-hidden="true" />
+        </span>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-        <a
-          href="tel:+919109776155"
-          className="inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-[#D9B873] px-6 py-4 text-xs font-bold uppercase tracking-[.12em] text-[#142536] shadow-lg shadow-black/20 transition duration-300 hover:-translate-y-0.5 hover:bg-[#E9D5A5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D9B873] focus-visible:ring-offset-2 focus-visible:ring-offset-[#142536]"
-        >
-          <Phone size={17} />
-          Call an advisor
-        </a>
-
-        <Link
-          to="/projects"
-          className="inline-flex min-h-14 items-center justify-center gap-3 rounded-full border border-white/25 bg-white/[0.04] px-6 py-4 text-xs font-bold uppercase tracking-[.12em] text-white transition duration-300 hover:-translate-y-0.5 hover:border-[#D9B873] hover:bg-[#D9B873]/10 hover:text-[#E9D5A5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D9B873]"
-        >
-          Explore projects
-          <ArrowRight size={17} />
-        </Link>
-      </div>
-    </div>
-  </div>
-</section>
-
-    </>
-  );
-}
-
-function ContactCard({ icon: Icon, eyebrow, title, detail, href }) {
-  const content = (
-    <>
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eee3cc] text-[#8d6c32] transition group-hover:bg-[#1a1a18] group-hover:text-[#d5b778]">
-        <Icon size={19} />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-[.15em] text-[#68717a]">
-          {eyebrow}
-        </p>
-        <p className="mt-1 break-words text-sm font-semibold text-[#142536] transition group-hover:text-[#8d6c32]">
-          {title}
-        </p>
-        <p className="mt-1 text-xs leading-5 text-[#5e6872]">{detail}</p>
-      </div>
-      {href && (
-        <ArrowRight
-          size={16}
-          className="ml-auto shrink-0 text-[#87909a] transition group-hover:translate-x-1 group-hover:text-[#8d6c32]"
+      <div className="mt-7 grid gap-5 sm:grid-cols-2">
+        <Field label="Full name" placeholder="e.g. Your name" value={form.name} onChange={(v) => updateField("name", v)} required error={errors.name} autoComplete="name" />
+        <Field label="Phone number" placeholder="10-digit mobile number" value={form.phone} onChange={(v) => updateField("phone", v)} required error={errors.phone} type="tel" autoComplete="tel" />
+        <Field label="Email address" placeholder="you@example.com" value={form.email} onChange={(v) => updateField("email", v)} error={errors.email} type="email" autoComplete="email" />
+        <SelectField
+          label="Approximate budget"
+          value={form.budget}
+          onChange={(v) => updateField("budget", v)}
+          options={["Under ₹1 Cr", "₹1 Cr – ₹2 Cr", "₹2 Cr – ₹3 Cr", "₹3 Cr – ₹5 Cr", "₹5 Cr – ₹10 Cr", "₹10 Cr+", "Not decided yet"]}
+          placeholder="Choose your budget"
+          icon={Wallet}
         />
-      )}
-    </>
-  );
+        <SelectField
+          label="Property preference"
+          value={form.propertyType}
+          onChange={(v) => updateField("propertyType", v)}
+          options={["Apartment / Flat", "Luxury residence", "Builder floor", "Villa / Independent home", "Plot", "Open to suggestions"]}
+          placeholder="Choose property type"
+          icon={Building2}
+        />
+        <SelectField
+          label="Buying timeline"
+          value={form.timeline}
+          onChange={(v) => updateField("timeline", v)}
+          options={["As soon as possible", "Within 3 months", "Within 3–6 months", "Within 6–12 months", "Just exploring"]}
+          placeholder="When are you planning?"
+          icon={CalendarCheck}
+        />
+        <div className="sm:col-span-2">
+          <Field label="Preferred Gurgaon location" placeholder="e.g. Dwarka Expressway, Golf Course Road, New Gurgaon" value={form.location} onChange={(v) => updateField("location", v)} />
+        </div>
+        <label className="block sm:col-span-2">
+          <span className="mb-2 block text-[11px] font-bold uppercase tracking-[.12em] text-[#536272]">
+            Anything else we should know?{" "}
+            <span className="font-normal normal-case tracking-normal text-[#68717a]">(optional)</span>
+          </span>
+          <textarea
+            rows={3}
+            value={form.message}
+            onChange={(event) => updateField("message", event.target.value)}
+            placeholder="Share your priorities, preferred possession timeline, amenities or questions..."
+            className="w-full resize-y rounded-2xl border border-[#d9dce0] bg-white px-4 py-3.5 text-sm text-[#142536] outline-none transition placeholder:text-[#87909a] focus:border-[#c6a15b] focus:ring-4 focus:ring-[#c6a15b]/10"
+          />
+        </label>
+      </div>
 
-  if (href) {
-    return (
-      <a
-        href={href}
-        className="group flex items-center gap-4 rounded-2xl border border-[#e7e2d8] bg-white p-4 transition hover:-translate-y-0.5 hover:border-[#c6a15b]/60 hover:shadow-md sm:p-5"
+      <button
+        type="submit"
+        className="mt-7 inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#142536] px-6 py-4 text-xs font-bold uppercase tracking-[.13em] text-white transition hover:bg-[#c6a15b] hover:text-[#142536]"
       >
-        {content}
-      </a>
-    );
-  }
-  return (
-    <div className="flex items-center gap-4 rounded-2xl border border-[#e7e2d8] bg-white p-4 sm:p-5">
-      {content}
-    </div>
+        <MessageCircle size={17} aria-hidden="true" /> Continue to WhatsApp <ArrowRight size={16} aria-hidden="true" />
+      </button>
+      <p className="mt-4 flex items-start justify-center gap-2 text-center text-[11px] leading-5 text-[#68717a]">
+        <ShieldCheck size={14} className="mt-0.5 shrink-0 text-[#9b7a40]" aria-hidden="true" />
+        Your details are used only to respond to your enquiry. WhatsApp opens with
+        a draft; you choose whether to send it.
+      </p>
+    </form>
   );
 }
 
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-  required = false,
-  placeholder = "",
-  error = "",
-  autoComplete,
-}) {
+function Field({ label, value, onChange, type = "text", required = false, placeholder = "", error = "", autoComplete }) {
   const inputId = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   const errorId = `${inputId}-error`;
-
   return (
     <label className="block">
       <span className="mb-2 block text-[11px] font-bold uppercase tracking-[.12em] text-[#536272]">
@@ -662,14 +561,10 @@ function Field({
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
-        className={`w-full rounded-2xl border ${error ? "border-red-400" : "border-[#d9dce0]"} bg-[#fbfaf7] px-4 py-3.5 text-sm text-[#142536] outline-none transition placeholder:text-[#87909a] focus:border-[#c6a15b] focus:bg-white focus:ring-4 focus:ring-[#c6a15b]/10`}
+        className={`w-full rounded-2xl border ${error ? "border-red-400" : "border-[#d9dce0]"} bg-white px-4 py-3.5 text-sm text-[#142536] outline-none transition placeholder:text-[#87909a] focus:border-[#c6a15b] focus:ring-4 focus:ring-[#c6a15b]/10`}
       />
       {error && (
-        <span
-          id={errorId}
-          role="alert"
-          className="mt-1.5 block text-xs text-red-600"
-        >
+        <span id={errorId} role="alert" className="mt-1.5 block text-xs text-red-600">
           {error}
         </span>
       )}
@@ -677,14 +572,7 @@ function Field({
   );
 }
 
-function SelectField({
-  label,
-  value,
-  onChange,
-  options,
-  placeholder,
-  icon: Icon,
-}) {
+function SelectField({ label, value, onChange, options, placeholder, icon: Icon }) {
   return (
     <label className="block">
       <span className="mb-2 block text-[11px] font-bold uppercase tracking-[.12em] text-[#536272]">
@@ -692,15 +580,12 @@ function SelectField({
       </span>
       <span className="relative block">
         {Icon && (
-          <Icon
-            size={16}
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#8d6c32]"
-          />
+          <Icon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#8d6c32]" aria-hidden="true" />
         )}
         <select
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className={`w-full appearance-none rounded-2xl border border-[#d9dce0] bg-[#fbfaf7] py-3.5 pr-10 text-sm text-[#142536] outline-none transition focus:border-[#c6a15b] focus:bg-white focus:ring-4 focus:ring-[#c6a15b]/10 ${Icon ? "pl-10" : "pl-4"}`}
+          className={`w-full appearance-none rounded-2xl border border-[#d9dce0] bg-white py-3.5 pr-10 text-sm text-[#142536] outline-none transition focus:border-[#c6a15b] focus:ring-4 focus:ring-[#c6a15b]/10 ${Icon ? "pl-10" : "pl-4"}`}
         >
           <option value="">{placeholder}</option>
           {options.map((option) => (
@@ -709,9 +594,7 @@ function SelectField({
             </option>
           ))}
         </select>
-        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#68717a]">
-          ⌄
-        </span>
+        <ChevronRight size={15} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-[#68717a]" aria-hidden="true" />
       </span>
     </label>
   );

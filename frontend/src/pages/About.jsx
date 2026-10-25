@@ -6,6 +6,7 @@ import {
   GitCompare,
   Handshake,
   Home,
+  Mail,
   MapPin,
   Search,
   ShieldCheck,
@@ -14,7 +15,17 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import CallIcon from "../components/CallIcon";
 import SEO from "../components/SEO";
+import { projects } from "../data/projects";
+
+// Group the listed projects by developer for the "Developers we cover" section.
+const developers = Object.values(
+  projects.reduce((all, project) => {
+    (all[project.developer] ??= { name: project.developer, list: [] }).list.push(project);
+    return all;
+  }, {}),
+);
 
 const highlights = [
   {
@@ -36,30 +47,6 @@ const highlights = [
     icon: ShieldCheck,
     title: "Clear, Informed Decisions",
     text: "Compare important details and ask the right questions before taking your next step.",
-  },
-];
-
-const projectTypes = [
-  {
-    icon: Sparkles,
-    number: "01",
-    title: "Pre-launch Opportunities",
-    description:
-      "Explore early-stage residential opportunities and understand the available information before deciding.",
-  },
-  {
-    icon: Building2,
-    number: "02",
-    title: "New Launches",
-    description:
-      "Compare newly launched projects, locations, configurations and project features.",
-  },
-  {
-    icon: Home,
-    number: "03",
-    title: "Ready-to-move Homes",
-    description:
-      "Discover completed residences that may suit your lifestyle and preferred timeline.",
   },
 ];
 
@@ -103,7 +90,7 @@ export default function About() {
         path="/about"
       />
 
-      <main className="overflow-hidden bg-white text-[#17283a]">
+      <div className="overflow-hidden bg-white text-[#17283a]">
         {/* HERO */}
         <section className="relative isolate flex min-h-[540px] items-center bg-[#142536] py-16 sm:min-h-[560px] sm:py-20">
           <div
@@ -134,8 +121,8 @@ export default function About() {
                 Gurgaon · Premium Real Estate Advisory
               </p>
               <h1 className="mt-6 font-display text-4xl leading-[1.08] text-white sm:text-6xl lg:text-7xl">
-                A better way to find
-                <span className="block text-[#e0bd78]">your next address.</span>
+                Gurgaon property advice,
+                <span className="block text-[#e0bd78]">built on listening.</span>
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8">
                 Property decisions feel easier when the options are relevant. We
@@ -242,48 +229,62 @@ export default function About() {
           </div>
         </section>
 
-        {/* PROPERTY TYPES */}
+        {/* DEVELOPERS WE COVER */}
         <section className="bg-[#f8f6f1] py-12 sm:py-16">
           <div className="container-luxury">
-            <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#9a7940]">
-                Find Your Fit
-              </p>
-              <h2 className="mt-4 font-display text-3xl leading-tight text-[#17283a] sm:text-4xl">
-                Explore the right kind of opportunity.
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-[#5e6872] sm:text-base">
-                Start with the property stage that matches your preferences and
-                timeline.
-              </p>
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div className="max-w-2xl">
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#9a7940]">
+                  Our coverage
+                </p>
+                <h2 className="mt-4 font-display text-3xl leading-tight text-[#17283a] sm:text-4xl">
+                  Developers we cover.
+                </h2>
+                <p className="mt-4 text-sm leading-7 text-[#5e6872] sm:text-base">
+                  We track residential projects from established developers
+                  across Gurgaon's growth corridors.
+                </p>
+              </div>
+              <Link to="/projects" className="inline-flex items-center gap-2 text-sm font-semibold text-[#17283a] hover:text-[#9a7940]">
+                See all projects <ArrowRight size={16} aria-hidden="true" />
+              </Link>
             </div>
-            <div className="mt-9 grid gap-5 md:grid-cols-3">
-              {projectTypes.map(
-                ({ title, description, icon: Icon, number }) => (
-                  <article
-                    key={title}
-                    className="relative overflow-hidden rounded-xl border border-[#e8e3d9] bg-white p-6 transition hover:-translate-y-1 hover:border-[#c9a45c]/70 hover:shadow-[0_16px_38px_rgba(20,37,54,0.09)] sm:p-7"
-                  >
-                    <span className="absolute right-5 top-3 font-display text-5xl text-[#17283a]/[0.08]">
-                      {number}
+            <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {developers.map(({ name, list }) => (
+                <article
+                  key={name}
+                  className="flex flex-col rounded-2xl border border-[#e8e3d9] bg-white p-5 transition hover:-translate-y-1 hover:shadow-[0_16px_38px_rgba(20,37,54,0.09)]"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#142536] font-display text-lg font-bold text-[#e0bd78]">
+                      {name.charAt(0)}
                     </span>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#f5efe3] text-[#a7803d]">
-                      <Icon size={21} />
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold text-[#17283a]">{name}</h3>
+                      <p className="text-xs text-[#68717a]">
+                        {list.length} {list.length === 1 ? "project" : "projects"}
+                      </p>
                     </div>
-                    <h3 className="mt-6 font-display text-xl text-[#17283a]">
-                      {title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-6 text-[#5e6872]">
-                      {description}
-                    </p>
-                  </article>
-                ),
-              )}
+                  </div>
+                  <ul className="mt-4 space-y-1.5 border-t border-[#eee9df] pt-3">
+                    {list.map((project) => (
+                      <li key={project.slug}>
+                        <Link
+                          to={`/projects/${project.slug}`}
+                          className="flex items-center justify-between gap-2 text-sm text-[#5e6872] hover:text-[#17283a]"
+                        >
+                          <span className="truncate">{project.name}</span>
+                          <span className="inline-flex shrink-0 items-center gap-1 text-xs text-[#9a7940]">
+                            <MapPin size={12} aria-hidden="true" />
+                            {project.location.replace(", Gurgaon", "")}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
             </div>
-            <p className="mt-5 text-xs leading-5 text-[#68717a]">
-              Availability, project details and terms should be confirmed for
-              each opportunity before making a decision.
-            </p>
           </div>
         </section>
 
@@ -360,30 +361,46 @@ export default function About() {
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="bg-[#c9a45c] py-12 sm:py-16">
-          <div className="container-luxury flex flex-col gap-7 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#142536]/70">
-                Your Property Search Starts Here
+        {/* Closing: About-specific contact panel */}
+        <section className="py-12 sm:py-16">
+          <div className="container-luxury grid gap-6 rounded-3xl border border-[#e7e2d8] bg-white p-6 shadow-sm sm:p-10 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#9a7940]">
+                Talk to us
               </p>
-              <h2 className="mt-3 font-display text-3xl leading-tight text-[#142536] sm:text-4xl">
-                Looking for a property in Gurgaon?
+              <h2 className="mt-3 font-display text-3xl leading-tight text-[#17283a]">
+                Questions about how we work?
               </h2>
-              <p className="mt-3 text-sm leading-6 text-[#142536]/75 sm:text-base">
-                Tell us what matters to you. We’ll help you explore relevant
-                residential opportunities.
+              <p className="mt-3 text-sm leading-6 text-[#5e6872]">
+                Ask us anything about our advisory process, the projects we cover
+                or how a site visit works.
               </p>
             </div>
-            <Link
-              to="/contact"
-              className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-md bg-[#b6bcc3] px-6 py-4 text-sm font-bold text-white transition hover:bg-white hover:text-[#142536]"
-            >
-              Talk to an Advisor <ArrowRight size={17} />
-            </Link>
+            <ul className="grid gap-3 sm:grid-cols-3">
+              {[
+                { icon: CallIcon, label: "Call", value: "+91 91097 76155", href: "tel:+919109776155", tone: "bg-[#34C759] text-white" },
+                { icon: Mail, label: "Email", value: "purwarmanish@gmail.com", href: "mailto:purwarmanish@gmail.com", tone: "bg-sky-500 text-white" },
+                { icon: MapPin, label: "Visit", value: "90 IDC, Gurgaon", href: "/contact#office", tone: "bg-[#c9a45c] text-[#142536]" },
+              ].map(({ icon: Icon, label, value, href, tone }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    className="flex h-full flex-col gap-3 rounded-2xl border border-[#eee9df] bg-[#fbfaf7] p-4 transition hover:-translate-y-0.5 hover:border-[#c9a45c]"
+                  >
+                    <span className={`grid size-10 place-items-center rounded-xl ${tone}`}>
+                      <Icon size={18} aria-hidden="true" />
+                    </span>
+                    <span>
+                      <span className="block text-[11px] font-bold uppercase tracking-[.12em] text-[#9a7940]">{label}</span>
+                      <span className="block break-words text-sm font-semibold text-[#17283a]">{value}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
-      </main>
+      </div>
     </>
   );
 }

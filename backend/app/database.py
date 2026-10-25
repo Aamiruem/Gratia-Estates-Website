@@ -33,6 +33,6 @@ def get_db():
 
 
 def create_tables():
-    from .models import OwnerSetupState, User, Video  # noqa: F401
+    from .models import LoginChallenge, OwnerSetupState, User, Video, VideoReaction  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

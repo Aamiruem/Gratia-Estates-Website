@@ -1,4 +1,5 @@
-import { CalendarDays, FileText, Mail, Phone } from "lucide-react";
+import { CalendarDays, FileText, Mail } from "lucide-react";
+import CallIcon from "./CallIcon";
 import PageHero from "./PageHero";
 
 function slugify(text) {
@@ -73,8 +74,8 @@ export default function LegalPage({ title, intro, updated, sections, disclaimer 
               href="tel:+919109776155"
               className="mt-4 flex items-center gap-3 rounded-2xl bg-[#142536] p-5 text-white transition hover:bg-[#1f3a52]"
             >
-              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#c9a45c] text-[#142536]">
-                <Phone size={17} aria-hidden="true" />
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#34C759] text-white">
+                <CallIcon size={18} />
               </span>
               <span className="text-sm">
                 Questions about this page?

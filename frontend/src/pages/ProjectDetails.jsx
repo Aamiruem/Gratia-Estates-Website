@@ -12,20 +12,22 @@ import {
   Landmark,
   MapPin,
   MessageCircle,
-  Phone,
   Play,
   Ruler,
   ShieldCheck,
   Trees,
 } from "lucide-react";
+import CallIcon from "../components/CallIcon";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProjectCard from "../components/ProjectCard";
 import SEO from "../components/SEO";
 import { JsonLd } from "../components/blog";
 import VideoPreview from "../components/VideoPreview";
+import VideoActions, { VideoInfo } from "../components/VideoActions";
 import { authApi } from "../services/authApi";
 import { projects } from "../data/projects";
+import { formatWhatsAppMessage, openWhatsApp } from "../utils/whatsapp";
 import {
   fetchVideos,
   getYouTubeVideoId,
@@ -129,11 +131,18 @@ export default function ProjectDetails() {
 
   const submitCallbackRequest = (event) => {
     event.preventDefault();
-    const message = `Hello Gratia Estates, I would like a callback about ${project.name}.\nName: ${callbackRequest.name}\nPhone: ${callbackRequest.phone}\nBudget: ${callbackRequest.budget}\nDescription: ${callbackRequest.description || "Not provided"}`;
-    window.open(
-      `https://wa.me/919109776155?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
+    openWhatsApp(
+      formatWhatsAppMessage("📲 *Callback Request*", [
+        [
+          ["🏢", "Project", `${project.name}, ${project.location}`],
+          ["💰", "Budget", callbackRequest.budget],
+        ],
+        [
+          ["👤", "Name", callbackRequest.name],
+          ["📞", "Phone", callbackRequest.phone],
+          ["📝", "Details", callbackRequest.description],
+        ],
+      ]),
     );
     setCallbackRequest({
       name: "",
@@ -338,13 +347,16 @@ export default function ProjectDetails() {
                           )}
                         </div>
                         <div className="p-5">
-                          <h3 className="font-display text-xl font-semibold text-[#142536]">
-                            {video.title}
-                          </h3>
+                          <VideoInfo video={video} />
                           {video.description && (
                             <p className="mt-2 text-sm leading-6 text-[#5e6872]">
                               {video.description}
                             </p>
+                          )}
+                          {videoId && (
+                            <div className="mt-4">
+                              <VideoActions videoId={videoId} title={video.title} compactLayout />
+                            </div>
                           )}
                         </div>
                       </article>
@@ -600,9 +612,9 @@ export default function ProjectDetails() {
               </ul>
               <a
                 href="tel:+919109776155"
-                className="relative mt-6 flex items-center justify-center gap-2 rounded-full bg-[#c9a45c] px-5 py-3.5 text-xs font-bold uppercase tracking-[.14em] text-[#142536] transition hover:bg-[#e1c98f]"
+                className="relative mt-6 flex items-center justify-center gap-2 rounded-full px-5 py-3.5 text-xs font-bold uppercase tracking-[.14em] transition bg-[#34C759] text-white shadow-[0_6px_16px_rgba(52,199,89,.35)] hover:bg-[#2DB14F]"
               >
-                <Phone size={16} aria-hidden="true" /> Call +91 91097 76155
+                <CallIcon size={17} /> Call +91 91097 76155
               </a>
             </div>
           </aside>

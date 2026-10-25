@@ -36,6 +36,53 @@ export function getYouTubeVideoId(value) {
   return /^[a-zA-Z0-9_-]{11}$/.test(videoId) ? videoId : "";
 }
 
+const FILE_TYPES = /\.(mp4|webm|ogg|ogv|mov|m4v)(\?.*)?$/i;
+
+/**
+ * Works out how to play a video link. Supported:
+ *  - YouTube: watch, Shorts, live, embed and youtu.be links
+ *  - Vimeo: vimeo.com/123 and player.vimeo.com/video/123
+ *  - Direct video files: .mp4, .webm, .ogg, .mov, .m4v
+ * Returns null for anything else.
+ */
+export function getVideoSource(value) {
+  const youtubeId = getYouTubeVideoId(value);
+  if (youtubeId) {
+    return {
+      type: "youtube",
+      id: youtubeId,
+      thumbnail: `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`,
+      fallbackThumbnail: `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`,
+    };
+  }
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  if (!/^https?:$/.test(url.protocol)) return null;
+  const host = url.hostname.toLowerCase().replace(/^www\./, "");
+  if (host === "vimeo.com" || host === "player.vimeo.com") {
+    const id = url.pathname.split("/").filter(Boolean).find((part) => /^\d+$/.test(part));
+    return id ? { type: "vimeo", id, thumbnail: "" } : null;
+  }
+  if (FILE_TYPES.test(url.pathname)) {
+    return { type: "file", src: url.href, thumbnail: "" };
+  }
+  return null;
+}
+
+// A stable key for likes/saves: the YouTube ID, or a short hash of other links.
+export function getVideoKey(value) {
+  const source = getVideoSource(value);
+  if (!source) return "";
+  if (source.type === "youtube") return source.id;
+  let hash = 0;
+  for (const ch of value) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return `v${hash.toString(36).padStart(10, "0").slice(-10)}`;
+}
+
 function normalizeVideo(video) {
   return {
     id: video.id,

@@ -5,7 +5,6 @@ import {
   Check,
   ChevronRight,
   MapPin,
-  Phone,
   Search,
   Send,
   ShieldCheck,
@@ -14,6 +13,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import CallIcon from "../components/CallIcon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SEO from "../components/SEO";
@@ -26,10 +26,12 @@ import {
   JourneySection,
   LatestInsights,
   PopularLocations,
+  ShortlistCTA,
   StatsBand,
   VideoTeaser,
 } from "../components/home/HomeSections";
 import { projects as projectData } from "../data/projects";
+import { formatWhatsAppMessage, openWhatsApp } from "../utils/whatsapp";
 
 const WHATSAPP_NUMBER = "919109776155";
 const PHONE_NUMBER = "+919109776155";
@@ -41,75 +43,6 @@ const heroSlides = projects.slice(0, MAX_FEATURED);
 const heroDevelopers = `${[...new Set(projects.map((p) => p.developer).filter(Boolean))]
   .slice(0, 4)
   .join(", ")} and more`;
-
-const trustPoints = [
-  {
-    Icon: ShieldCheck,
-    title: "Trust",
-    description:
-      "Clear communication and guidance throughout your property journey.",
-  },
-  {
-    Icon: Sparkles,
-    title: "Curated options",
-    description:
-      "Residential opportunities selected around your goals and budget.",
-  },
-  {
-    Icon: TrendingUp,
-    title: "Local expertise",
-    description:
-      "Focused knowledge of Gurgaon sectors, launches, and communities.",
-  },
-];
-
-const guidancePoints = [
-  {
-    Icon: ShieldCheck,
-    title: "Gurgaon expertise",
-    description:
-      "Local market knowledge helps you explore suitable sectors and communities.",
-  },
-  {
-    Icon: Search,
-    title: "Clear comparisons",
-    description:
-      "Compare location, project details, developer information, and indicative pricing.",
-  },
-  {
-    Icon: Users,
-    title: "Guidance that listens",
-    description:
-      "Recommendations shaped around your needs, budget, and buying timeline.",
-  },
-  {
-    Icon: Check,
-    title: "Focused choices",
-    description:
-      "Explore pre-launch, new-launch, and ready-to-move residential projects.",
-  },
-];
-
-const processSteps = [
-  {
-    number: "01",
-    title: "Understand",
-    description:
-      "We learn your budget, preferred location, lifestyle needs, and timeline.",
-  },
-  {
-    number: "02",
-    title: "Shortlist",
-    description:
-      "We compare suitable Gurgaon projects on location, developer, features, and value.",
-  },
-  {
-    number: "03",
-    title: "Guide",
-    description:
-      "We support you from your initial enquiry to project visits and informed decisions.",
-  },
-];
 
 function safeText(value, fallback = "") {
   return typeof value === "string" || typeof value === "number"
@@ -189,15 +122,16 @@ function HomeContactPopup() {
     const cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length !== 10) return;
 
-    const message = [
-      "Hello Gratia Estates, I would like to know more about Gurgaon properties.",
-      `Name: ${name.trim()}`,
-      `Phone: ${cleanPhone}`,
-      `Requirement: ${requirement.trim()}`,
-    ].join("\n");
-
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    openWhatsApp(
+      formatWhatsAppMessage("🏠 *New Website Enquiry*", [
+        [
+          ["👤", "Name", name],
+          ["📞", "Phone", cleanPhone],
+        ],
+        [["📝", "Requirement", requirement]],
+      ]),
+      WHATSAPP_NUMBER,
+    );
     setIsOpen(false);
   };
 
@@ -309,9 +243,9 @@ function HomeContactPopup() {
           <div className="mt-5 border-t border-charcoal/10 pt-4 text-center">
             <a
               href={`tel:${PHONE_NUMBER}`}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-sm font-bold text-charcoal transition hover:bg-charcoal hover:text-white"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition bg-[#34C759] text-white shadow-[0_6px_16px_rgba(52,199,89,.35)] hover:bg-[#2DB14F]"
             >
-              <Phone size={17} aria-hidden="true" />
+              <CallIcon size={18} />
               Call +91 91097 76155
             </a>
           </div>
@@ -634,8 +568,8 @@ export default function Home() {
               href={`tel:${PHONE_NUMBER}`}
               className="mt-6 inline-flex items-center gap-3 text-sm text-[#4b5966] transition hover:text-[#142536]"
             >
-              <span className="grid size-10 place-items-center rounded-full bg-[#c9a45c] text-[#142536] shadow-md">
-                <Phone size={17} aria-hidden="true" />
+              <span className="grid size-10 place-items-center rounded-full bg-[#34C759] text-white shadow-[0_6px_16px_rgba(52,199,89,.35)]">
+                <CallIcon size={18} />
               </span>
               <span>
                 Speak to an advisor today
@@ -647,29 +581,6 @@ export default function Home() {
           </div>
 
           <FeaturedProjectSlider />
-        </div>
-      </section>
-
-      <section className="border-y border-charcoal/10 bg-[#f5f1e8] text-charcoal">
-        <div className="container-luxury grid gap-4 py-12 sm:grid-cols-3 sm:gap-6 sm:py-16">
-          {trustPoints.map(({ Icon, title, description }) => (
-            <article
-              key={title}
-              className="flex items-start gap-4 rounded-2xl border border-charcoal/10 bg-white/85 p-5 shadow-sm sm:p-6"
-            >
-              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gold/15">
-                <Icon className="text-[#96713b]" size={24} aria-hidden="true" />
-              </span>
-              <div>
-                <h2 className="font-display text-xl font-semibold sm:text-2xl">
-                  {title}
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-charcoal/70">
-                  {description}
-                </p>
-              </div>
-            </article>
-          ))}
         </div>
       </section>
 
@@ -730,95 +641,6 @@ export default function Home() {
 
       <BrowseByStage />
 
-      <section className="bg-[#eef2f5] py-12 text-[#142536] sm:py-16">
-        <div className="container-luxury grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
-          <div>
-            <div className="gold-line mb-5" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#80602b] sm:text-[11px]">
-              Gurgaon property, made clearer
-            </p>
-            <h2 className="mt-4 font-display text-3xl font-semibold leading-tight sm:text-5xl">
-              Local insight for a more confident move.
-            </h2>
-            <p className="mt-6 max-w-xl text-sm leading-7 text-[#3d4b59] sm:text-base sm:leading-8">
-              Finding the right home starts with the right guidance. We help
-              bring Gurgaon projects into focus with straightforward
-              comparisons, relevant options, and personal support.
-            </p>
-            <Link
-              to="/about"
-              className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full border border-[#142536]/25 bg-white px-6 py-3 text-xs font-bold uppercase tracking-[0.12em] transition hover:border-[#142536] hover:bg-[#142536] hover:text-white"
-            >
-              Know more <ArrowRight size={15} aria-hidden="true" />
-            </Link>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {guidancePoints.map(({ Icon, title, description }) => (
-              <article
-                key={title}
-                className="rounded-2xl border border-[#142536]/10 bg-white p-5 shadow-[0_12px_30px_rgba(20,37,54,0.07)] transition duration-200 hover:-translate-y-1 sm:p-6"
-              >
-                <span className="mb-5 grid size-11 place-items-center rounded-xl bg-[#f5f1e8]">
-                  <Icon
-                    className="text-[#96713b]"
-                    size={21}
-                    aria-hidden="true"
-                  />
-                </span>
-                <h3 className="font-display text-xl font-semibold leading-snug">
-                  {title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-[#4b5966]">
-                  {description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 sm:py-16">
-        <div className="container-luxury grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-          <div>
-            <div className="gold-line mb-5" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-charcoal/50 sm:text-[11px]">
-              Our approach
-            </p>
-            <h2 className="mt-4 font-display text-3xl sm:text-5xl">
-              Your property. Our expertise.
-            </h2>
-            <div className="mt-8 space-y-6">
-              {processSteps.map(({ number, title, description }) => (
-                <div className="flex gap-5" key={number}>
-                  <span className="font-display text-2xl text-[#96713b]">
-                    {number}
-                  </span>
-                  <div>
-                    <h3 className="font-semibold">{title}</h3>
-                    <p className="mt-1 text-sm leading-6 text-charcoal/60">
-                      {description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="overflow-hidden rounded-3xl bg-[#f5f1e8]">
-            <img
-              src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=85"
-              alt="Contemporary premium residential interior"
-              className="h-[320px] w-full object-cover sm:h-[480px]"
-              loading="lazy"
-              onError={(event) => {
-                event.currentTarget.style.display = "none";
-              }}
-            />
-          </div>
-        </div>
-      </section>
-
       <VideoTeaser />
 
       <JourneySection />
@@ -831,28 +653,7 @@ export default function Home() {
 
       <HomeFaq />
 
-      <section className="bg-gold py-12 sm:py-14">
-        <div className="container-luxury flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-charcoal/60 sm:text-[11px]">
-              Start your search
-            </p>
-            <h2 className="mt-2 max-w-2xl font-display text-3xl text-charcoal sm:text-4xl">
-              Looking for a property in Gurgaon?
-            </h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-charcoal/75">
-              Tell us what you are looking for and speak with a property
-              advisor.
-            </p>
-          </div>
-          <Link
-            to="/contact"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-charcoal px-7 py-4 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-white hover:text-charcoal"
-          >
-            Speak with an advisor <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
-      </section>
+      <ShortlistCTA />
     </>
   );
 }

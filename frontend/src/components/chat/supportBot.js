@@ -57,7 +57,7 @@ function listReply(intro, list, empty) {
     text: intro,
     links: list.map(projectLine),
     actions: [
-      { label: "Book a site visit", href: whatsappLink(`Hello Gratia Estates, I'd like a site visit for: ${list.map((p) => p.name).join(", ")}.`) },
+      { label: "Book a site visit", to: list.length === 1 ? `/book-visit?project=${list[0].slug}` : "/book-visit" },
       { label: "View all projects", to: "/projects" },
     ],
   };
@@ -125,7 +125,7 @@ export function answer(rawQuestion) {
       text: `${p.name} by ${p.developer} is in ${p.location}. Status: ${p.status}. Starting price: ${p.price}. Highlights: ${p.highlights.join(", ")}.`,
       links: [{ text: `Open ${p.name} details`, to: `/projects/${p.slug}` }],
       actions: [
-        { label: "Book a site visit", href: whatsappLink(`Hello Gratia Estates, I'd like a site visit for ${p.name} (${p.location}).`) },
+        { label: "Book a site visit", to: `/book-visit?project=${p.slug}` },
         { label: "Get latest price", href: whatsappLink(`Hello Gratia Estates, please share the latest price and availability for ${p.name}.`) },
       ],
     };
@@ -164,8 +164,9 @@ export function answer(rawQuestion) {
   // 4b. Site visit / meeting / callback
   if (has(text, ["site visit", "visit", "book", "appointment", "meet", "callback", "call back", "schedule", "tour"])) {
     return {
-      text: "Happy to arrange a site visit. Share the project and a convenient day on WhatsApp and our team will confirm the details.",
+      text: "We'd be happy to arrange a site visit for you. Book in a few quick steps online, or message us on WhatsApp and our team will confirm the details.",
       actions: [
+        { label: "Book a visit online", to: "/book-visit" },
         { label: "Book on WhatsApp", href: whatsappLink("Hello Gratia Estates, I'd like to book a site visit. Preferred project and day: ") },
         { label: `Call ${CONTACT.phone}`, href: `tel:${CONTACT.tel}` },
       ],

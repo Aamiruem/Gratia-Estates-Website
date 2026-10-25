@@ -1,4 +1,5 @@
-import { ArrowRight, BookOpen, Building2, Clapperboard, House, Phone } from "lucide-react";
+import { ArrowRight, BookOpen, Building2, Clapperboard, House } from "lucide-react";
+import CallIcon from "../components/CallIcon";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 
@@ -54,9 +55,9 @@ export default function NotFound() {
           </ul>
           <a
             href="tel:+919109776155"
-            className="mt-10 inline-flex items-center gap-2 rounded-full bg-[#142536] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#c9a45c] hover:text-[#142536]"
+            className="mt-10 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition bg-[#34C759] text-white shadow-[0_6px_16px_rgba(52,199,89,.35)] hover:bg-[#2DB14F]"
           >
-            <Phone size={16} aria-hidden="true" /> Or call us on +91 91097 76155
+            <CallIcon size={17} /> Or call us on +91 91097 76155
           </a>
         </div>
       </section>

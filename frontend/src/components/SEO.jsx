@@ -10,6 +10,7 @@ export default function SEO({
   path = "/",
   image,
   type = "website",
+  noindex = false,
 }) {
   useEffect(() => {
     document.title = title;
@@ -34,6 +35,8 @@ export default function SEO({
     };
 
     setMeta("description", description);
+    // Private pages (e.g. owner sign-in) are kept out of search results.
+    setMeta("robots", noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large");
 
     let canonical = document.querySelector('link[rel="canonical"]');
 
@@ -64,7 +67,7 @@ export default function SEO({
     setMeta("twitter:title", title);
     setMeta("twitter:description", description);
     setMeta("twitter:image", imageUrl);
-  }, [title, description, path, image, type]);
+  }, [title, description, path, image, type, noindex]);
 
   return null;
 }

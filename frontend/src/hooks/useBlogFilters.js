@@ -7,11 +7,13 @@ export default function useBlogFilters(posts) {
   const query = searchParams.get("q") ?? "";
   const category = searchParams.get("category") ?? "all";
   const sort = searchParams.get("sort") ?? "newest";
+  const type = searchParams.get("type") ?? "all";
 
   const results = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return posts
       .filter((post) => category === "all" || post.category === category)
+      .filter((post) => type === "all" || (post.type ?? "article") === type)
       .filter(
         (post) =>
           !normalizedQuery ||
@@ -25,11 +27,11 @@ export default function useBlogFilters(posts) {
           ? a.date.localeCompare(b.date)
           : b.date.localeCompare(a.date),
       );
-  }, [posts, query, category, sort]);
+  }, [posts, query, category, sort, type]);
 
   const update = (key, value) => {
     const next = new URLSearchParams(searchParams);
-    if (!value || (key === "category" && value === "all") || (key === "sort" && value === "newest")) {
+    if (!value || ((key === "category" || key === "type") && value === "all") || (key === "sort" && value === "newest")) {
       next.delete(key);
     } else {
       next.set(key, value);
@@ -46,10 +48,12 @@ export default function useBlogFilters(posts) {
   return {
     results,
     visibleCount,
-    isFiltering: Boolean(query || category !== "all"),
+    isFiltering: Boolean(query || category !== "all" || type !== "all"),
     sort,
     query,
     category,
+    type,
+    setType: (value) => update("type", value),
     setQuery: (value) => update("q", value),
     setCategory: (value) => update("category", value),
     setSort: (value) => update("sort", value),

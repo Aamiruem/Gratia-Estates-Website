@@ -1,28 +1,29 @@
 import {
   CalendarCheck,
-  Check,
   Pencil,
   Play,
   Plus,
+  Repeat2,
   Sparkles,
   Trash2,
-  X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SEO from "../components/SEO";
 import VideoPreview from "../components/VideoPreview";
+import VideoActions, { VideoInfo, videoChannel } from "../components/VideoActions";
+import VideoEditorDialog from "../components/VideoEditorDialog";
 import { projects } from "../data/projects";
 import { Link, useSearchParams } from "react-router-dom";
 import { authApi } from "../services/authApi";
 import {
   fetchVideos,
+  getVideoKey,
+  getVideoSource,
   getYouTubeVideoId,
   removeVideo,
   saveVideo,
   saveVideos,
 } from "../utils/videoLibrary";
-
-const emptyForm = { title: "", url: "", description: "", projectSlug: "" };
 const sampleVideos = [
   {
     id: "roots-courtyard-2",
@@ -105,17 +106,13 @@ export default function Videos() {
   const [searchParams] = useSearchParams();
   const requestedProjectSlug = searchParams.get("project") || "";
   const [videos, setVideos] = useState([]);
-  const [managerOpen, setManagerOpen] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState("");
+  // Owner editor dialog: { video (null = new), focus: "title" | "url" }
+  const [editor, setEditor] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const isOwner = user?.is_video_admin === true;
-  const managerRef = useRef(null);
-  const titleInputRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -164,73 +161,36 @@ export default function Videos() {
       return;
     }
 
-    setForm({ ...emptyForm, projectSlug: requestedProjectSlug });
-    setManagerOpen(true);
-    setFormOpen(true);
-    requestAnimationFrame(() => {
-      managerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      titleInputRef.current?.focus({ preventScroll: true });
-    });
+    // Arriving from a project page's "Add project video" opens the editor ready.
+    setEditor({ video: { projectSlug: requestedProjectSlug }, focus: "url" });
   }, [requestedProjectSlug, isOwner]);
 
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId("");
-  };
-
-  const submitVideo = async (event) => {
-    event.preventDefault();
-    const title = form.title.trim();
-    const url = form.url.trim();
-    const description = form.description.trim();
-
-    if (!title) {
-      setError("Add a title for this video.");
-      return;
-    }
-    if (!getYouTubeVideoId(url)) {
-      setError("Enter a valid YouTube video, Shorts, or youtu.be URL.");
-      return;
-    }
-
-    const nextVideo = {
-      ...(editingId ? { id: editingId } : { id: createId() }),
-      title,
-      url,
-      description,
-      projectSlug: form.projectSlug,
-    };
-    const { error: saveError } = await saveVideo(nextVideo);
+  // Saves from the editor dialog; returns an error message, or "" on success.
+  const saveFromEditor = async (values) => {
+    const editingId = editor?.video?.id;
+    const { error: saveError } = await saveVideo({
+      id: editingId || createId(),
+      ...values,
+    });
     if (saveError) {
       console.error("Could not save video.", saveError);
-      setError(`The video could not be saved: ${saveError.message}`);
-      return;
+      return `The video could not be saved: ${saveError.message}`;
     }
     const refreshedVideos = await fetchVideos();
-    if (refreshedVideos.error) {
-      setError(`Video saved but the library failed to refresh: ${refreshedVideos.error}`);
-      return;
-    }
-    setVideos(refreshedVideos.videos);
+    if (!refreshedVideos.error) setVideos(refreshedVideos.videos);
     setNotice(editingId ? "Video updated." : "Video added.");
     setError("");
-    {
-      resetForm();
-      setFormOpen(false);
-    }
+    setEditor(null);
+    return "";
   };
 
   const openAddForm = () => {
-    resetForm();
-    setManagerOpen(true);
-    setFormOpen(true);
     setNotice("");
     setError("");
-    requestAnimationFrame(() => {
-      managerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      titleInputRef.current?.focus({ preventScroll: true });
-    });
+    setEditor({ video: null, focus: "url" });
   };
+
+  const closeEditor = useCallback(() => setEditor(null), []);
 
   const addSampleVideos = async () => {
     const sampleIds = new Set(
@@ -304,22 +264,11 @@ export default function Videos() {
     setNotice(`Sample videos updated: ${summary}.`);
   };
 
-  const editVideo = (video) => {
-    setEditingId(video.id);
-    setForm({
-      title: video.title,
-      url: video.url,
-      description: video.description,
-      projectSlug: video.projectSlug || "",
-    });
-    setManagerOpen(true);
-    setFormOpen(true);
+  // One click: opens the editor on the title, or straight on the link ("Change video").
+  const editVideo = (video, focus = "title") => {
     setError("");
     setNotice("");
-    document.getElementById("video-manager")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    setEditor({ video, focus });
   };
 
   const deleteVideo = async (video) => {
@@ -335,7 +284,7 @@ export default function Videos() {
     setVideos((current) => current.filter((item) => item.id !== video.id));
     setError("");
     setNotice("Video deleted.");
-    if (editingId === video.id) resetForm();
+    if (editor?.video?.id === video.id) setEditor(null);
   };
 
   const signOutOwner = async () => {
@@ -346,9 +295,7 @@ export default function Videos() {
       return;
     }
     setUser(null);
-    setManagerOpen(false);
-    setFormOpen(false);
-    resetForm();
+    setEditor(null);
     setNotice("");
   };
 
@@ -360,125 +307,100 @@ export default function Videos() {
         path="/videos"
       />
 
-      <section className="bg-gradient-to-br from-[#f8f6f1] via-[#f4f0e7] to-[#ebe4d7] py-12 sm:py-16">
-        <div className="container-luxury grid items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(480px,1.1fr)] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(560px,1.1fr)] xl:gap-14">
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#0b1622] via-[#122436] to-[#1b3247] text-white">
+        <div className="pointer-events-none absolute -left-32 -top-32 -z-10 size-[30rem] rounded-full bg-[#c9a45c]/15 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-40 right-0 -z-10 size-[28rem] rounded-full bg-rose-500/10 blur-3xl" aria-hidden="true" />
+        <div className="container-luxury grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[.9fr_1.1fr] lg:gap-14">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#c9a45c]/40 bg-white/70 px-4 py-2 text-xs font-bold uppercase tracking-[.16em] text-[#8d6c32]">
-              <img
-                src="/assets/logo-primary.png"
-                alt=""
-                aria-hidden="true"
-                className="h-7 w-9 object-contain"
-              />
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.06] py-1.5 pl-1.5 pr-4 text-xs font-bold uppercase tracking-[.16em] text-[#e1c98f]">
+              <span className="grid size-7 place-items-center rounded-full bg-rose-600 text-white">
+                <Play size={13} fill="currentColor" aria-hidden="true" />
+              </span>
               Gratia Estates Media
             </p>
-            <div className="mt-6">
-              <h1 className="font-display text-4xl font-semibold leading-tight text-[#142536] sm:text-5xl lg:text-6xl">
-                Roots Developers videos
-              </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-[#5e6872] sm:text-lg">
-                Explore project introductions, brand stories and customer
-                feedback videos from RootsDevelopers.
-              </p>
+            <h1 className="mt-6 font-display text-4xl font-bold leading-[1.08] !text-white sm:text-5xl xl:text-6xl">
+              Watch Gurgaon homes
+              <span className="block bg-gradient-to-r from-[#e1c98f] via-[#c9a45c] to-[#e1c98f] bg-clip-text text-transparent">
+                before you visit.
+              </span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+              Project walkthroughs, community tours and real customer stories,
+              in HD. Shortlist from your sofa, then visit the ones you love.
+            </p>
+
+            <ul className="mt-7 flex flex-wrap gap-3">
+              {[
+                { value: videos.length || "—", label: "Videos" },
+                { value: "HD", label: "Quality" },
+                { value: new Set(videos.map((v) => v.projectSlug).filter(Boolean)).size || projects.length, label: "Projects covered" },
+              ].map(({ value, label }) => (
+                <li key={label} className="rounded-2xl border border-white/10 bg-white/[.05] px-4 py-2.5">
+                  <span className="block font-display text-xl font-bold text-white">{value}</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[.12em] text-white/55">{label}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a
+                href="#all-videos"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#c9a45c] px-6 py-3 text-sm font-semibold text-[#142536] shadow-[0_10px_24px_rgba(201,164,92,.35)] transition hover:bg-[#e1c98f]"
+              >
+                <Play size={16} fill="currentColor" aria-hidden="true" /> Browse all videos
+              </a>
+              <Link
+                to="/book-visit"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
+              >
+                <CalendarCheck size={16} aria-hidden="true" /> Book a site visit
+              </Link>
             </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              {isOwner ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={openAddForm}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c9a45c] px-5 py-3 text-sm font-semibold text-[#142536] shadow-md transition hover:bg-[#dfc58f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c9a45c]/40"
-                  >
-                    <Plus size={17} />
-                    Add video
+
+            {isOwner && (
+              // Owner-only tools: never shown to visitors.
+              <div className="mt-8 rounded-2xl border border-emerald-400/25 bg-emerald-400/10 p-4">
+                <p className="text-xs font-semibold text-emerald-200">
+                  Owner mode · signed in as {user.email}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" onClick={openAddForm} className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#142536] hover:bg-[#e1c98f]">
+                    <Plus size={15} aria-hidden="true" /> Add video
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setManagerOpen((open) => !open);
-                      setNotice("");
-                      setError("");
-                    }}
-                    aria-expanded={managerOpen}
-                    aria-controls="video-manager"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#142536] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#263f55] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c9a45c]/40"
-                  >
-                    {managerOpen ? <X size={17} /> : <Pencil size={16} />}
-                    {managerOpen ? "Close manager" : "Manage videos"}
+                  <button type="button" onClick={addSampleVideos} className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20">
+                    <Sparkles size={15} aria-hidden="true" /> Sync sample videos
                   </button>
-                  <button
-                    type="button"
-                    onClick={signOutOwner}
-                    className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#142536]/20 bg-white/70 px-5 py-3 text-sm font-semibold text-[#142536] transition hover:bg-white"
-                  >
+                  <button type="button" onClick={signOutOwner} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white/80 hover:text-white">
                     Sign out
                   </button>
-                </>
-              ) : (
-                <div className="flex flex-wrap gap-3">
-                  <Link
-                    to="/video-admin/login"
-                    aria-disabled={authLoading}
-                    className={`inline-flex min-h-11 items-center justify-center rounded-full border border-[#142536]/20 bg-white/70 px-5 py-3 text-sm font-semibold text-[#142536] transition hover:bg-white ${authLoading ? "pointer-events-none opacity-60" : ""}`}
-                  >
-                    {authLoading ? "Checking owner access..." : "Owner sign-in"}
-                  </Link>
                 </div>
-              )}
-            </div>
-            {isOwner && (
-              <p className="mt-3 text-xs font-medium text-[#52606b]">
-                Signed in as {user.email}. Visitor accounts cannot manage videos.
-              </p>
+              </div>
             )}
-            <p className="mt-5 max-w-2xl rounded-xl border border-[#c9a45c]/30 bg-white/70 px-4 py-3 text-sm leading-6 text-[#5e6872]">
-              These sample videos are from the public RootsDevelopers YouTube
-              channel. The shared library is visible to visitors; only the
-              authenticated owner can add, update or delete videos.
-            </p>
           </div>
 
           {videos[0] && (
-            <div className="mx-auto w-full lg:ml-auto lg:mr-0">
-              <div className="overflow-hidden rounded-[1.4rem] border border-[#c9a45c]/50 bg-white p-2 shadow-[0_24px_60px_rgba(20,37,54,.2)] transition-transform duration-500 ease-out hover:rotate-0 hover:scale-[1.02] motion-safe:rotate-1">
-                <div className="overflow-hidden rounded-[1rem] bg-[#142536]">
-                  <div className="aspect-video">
-                    {getYouTubeVideoId(videos[0].url) ? (
-                      <VideoPreview
-                        video={videos[0]}
-                        videoId={getYouTubeVideoId(videos[0].url)}
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-[#142536]">
-                        <img
-                          src="/assets/logo-primary.png"
-                          alt="Gratia Estates"
-                          className="w-32 rounded bg-white p-2"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-start justify-between gap-4 px-3 pb-3 pt-4 sm:px-4">
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold uppercase tracking-[.15em] text-[#9a7940]">
-                      Featured project guide
-                    </p>
-                    <h2 className="mt-1 line-clamp-2 font-display text-lg font-semibold leading-snug text-[#142536] sm:text-xl">
-                      {videos[0].title}
-                    </h2>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-[#f4f0e7] px-3 py-1.5 text-xs font-semibold text-[#765b2b]">
-                    Watch video
-                  </span>
-                </div>
+            <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[.04] p-2 shadow-[0_30px_80px_rgba(0,0,0,.45)]">
+              <div className="aspect-video overflow-hidden rounded-[1.2rem] bg-black">
+                {getVideoSource(videos[0].url) ? (
+                  <VideoPreview
+                    video={videos[0]}
+                    overlay={{ label: "Featured", title: videos[0].title, channel: videoChannel(videos[0]).name }}
+                  />
+                ) : (
+                  <div className="grid h-full place-items-center text-sm text-white/60">This video link isn't supported.</div>
+                )}
+              </div>
+              <div className="px-3 pb-2 pt-4">
+                {getVideoKey(videos[0].url) && (
+                  <VideoActions videoId={getVideoKey(videos[0].url)} url={videos[0].url} title={videos[0].title} dark compactLayout />
+                )}
               </div>
             </div>
           )}
         </div>
       </section>
 
-      <section className="bg-white py-12 sm:py-16">
+      <section id="all-videos" className="scroll-mt-24 bg-white py-12 sm:py-16">
         <div className="container-luxury flex flex-col">
           {error && (
             <p
@@ -497,172 +419,57 @@ export default function Videos() {
             </p>
           )}
 
-          {managerOpen && isOwner && (
-            <div
-              id="video-manager"
-              ref={managerRef}
-              className="order-2 mt-12 scroll-mt-28 rounded-3xl border border-[#e7e2d8] bg-[#fbfaf7] p-5 shadow-sm sm:p-8"
-            >
-              <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[.15em] text-[#9a7940]">
-                    Video library
-                  </p>
-                  <h2 className="mt-2 font-display text-2xl font-semibold text-[#142536] sm:text-3xl">
-                    {formOpen
-                      ? editingId
-                        ? "Edit a video"
-                        : "Add a video"
-                      : "Manage your videos"}
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-[#5e6872]">
-                    Add a YouTube link to a property tour, project overview, or
-                    real estate guide.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={openAddForm}
-                    className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#142536] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#263f55]"
-                  >
-                    <Plus size={15} /> Add video
-                  </button>
-                  <button
-                    type="button"
-                    onClick={addSampleVideos}
-                    className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#d9dce0] bg-white px-4 py-2 text-xs font-semibold text-[#263746] transition hover:border-[#c9a45c]"
-                  >
-                    <Sparkles size={15} /> Add/update sample videos
-                  </button>
-                </div>
-              </div>
-
-              {formOpen && (
-                <form onSubmit={submitVideo} className="grid gap-5 md:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-[#263746]">
-                    Video title
-                  </span>
-                  <input
-                    ref={titleInputRef}
-                    value={form.title}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        title: event.target.value,
-                      }))
-                    }
-                    maxLength={120}
-                    required
-                    placeholder="e.g. Gurgaon project walkthrough"
-                    className="w-full rounded-xl border border-[#d9dce0] bg-white px-4 py-3 text-sm text-[#142536] outline-none placeholder:text-[#87909a] focus:border-[#c9a45c] focus:ring-4 focus:ring-[#c9a45c]/15"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-[#263746]">
-                    YouTube URL
-                  </span>
-                  <input
-                    type="url"
-                    value={form.url}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        url: event.target.value,
-                      }))
-                    }
-                    required
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full rounded-xl border border-[#d9dce0] bg-white px-4 py-3 text-sm text-[#142536] outline-none placeholder:text-[#87909a] focus:border-[#c9a45c] focus:ring-4 focus:ring-[#c9a45c]/15"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-[#263746]">
-                    Link to a project <span className="font-normal text-[#68717a]">(optional)</span>
-                  </span>
-                  <select
-                    value={form.projectSlug}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        projectSlug: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-xl border border-[#d9dce0] bg-white px-4 py-3 text-sm text-[#142536] outline-none focus:border-[#c9a45c] focus:ring-4 focus:ring-[#c9a45c]/15"
-                  >
-                    <option value="">General video (not linked to a project)</option>
-                    {projects.map((project) => (
-                      <option key={project.slug} value={project.slug}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block md:col-span-2">
-                  <span className="mb-2 block text-sm font-semibold text-[#263746]">
-                    Short description <span className="font-normal text-[#68717a]">(optional)</span>
-                  </span>
-                  <textarea
-                    rows={3}
-                    value={form.description}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        description: event.target.value,
-                      }))
-                    }
-                    maxLength={300}
-                    placeholder="Add a brief note about what viewers will see."
-                    className="w-full resize-y rounded-xl border border-[#d9dce0] bg-white px-4 py-3 text-sm text-[#142536] outline-none placeholder:text-[#87909a] focus:border-[#c9a45c] focus:ring-4 focus:ring-[#c9a45c]/15"
-                  />
-                </label>
-                <div className="flex flex-wrap gap-3 md:col-span-2">
-                  <button
-                    type="submit"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#142536] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#263f55] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c9a45c]/35"
-                  >
-                    {editingId ? <Check size={17} /> : <Plus size={17} />}
-                    {editingId ? "Save changes" : "Add video"}
-                  </button>
-                  {editingId && (
-                    <button
-                      type="button"
-                      onClick={resetForm}
-                      className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d9dce0] bg-white px-5 py-3 text-sm font-semibold text-[#263746] transition hover:border-[#9aa4ad]"
-                    >
-                      Cancel edit
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      resetForm();
-                      setFormOpen(false);
-                      setError("");
-                    }}
-                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d9dce0] bg-white px-5 py-3 text-sm font-semibold text-[#263746] transition hover:border-[#9aa4ad]"
-                  >
-                    Close form
-                  </button>
-                </div>
-                </form>
-              )}
-             </div>
-          )}
-
           {videos.length ? (
             <div className="order-1 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {videos.map((video) => {
-                const videoId = getYouTubeVideoId(video.url);
+                const playable = Boolean(getVideoSource(video.url));
+                const videoKey = getVideoKey(video.url);
                 return (
                   <article
                     key={video.id}
-                    className="overflow-hidden rounded-2xl border border-[#e7e2d8] bg-white shadow-[0_12px_35px_rgba(20,37,54,.08)]"
+                    className="group/card relative overflow-hidden rounded-2xl border border-[#e7e2d8] bg-white shadow-[0_12px_35px_rgba(20,37,54,.08)]"
                   >
+                    {isOwner && (
+                      // One-click owner tools, always visible on every card.
+                      <div className="absolute left-3 top-3 z-20 flex gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => editVideo(video)}
+                          className="inline-flex h-8 items-center gap-1.5 rounded-full bg-white/95 px-3 text-xs font-semibold text-[#142536] shadow-md transition hover:bg-[#c9a45c]"
+                          title="Edit title, description and project"
+                        >
+                          <Pencil size={13} aria-hidden="true" /> Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => editVideo(video, "url")}
+                          className="inline-flex h-8 items-center gap-1.5 rounded-full bg-white/95 px-3 text-xs font-semibold text-[#142536] shadow-md transition hover:bg-[#c9a45c]"
+                          title="Replace this video with a different link"
+                        >
+                          <Repeat2 size={13} aria-hidden="true" /> Change video
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteVideo(video)}
+                          className="grid size-8 place-items-center rounded-full bg-white/95 text-red-600 shadow-md transition hover:bg-red-600 hover:text-white"
+                          aria-label={`Delete ${video.title}`}
+                          title="Delete video"
+                        >
+                          <Trash2 size={14} aria-hidden="true" />
+                        </button>
+                      </div>
+                    )}
                     <div className="aspect-video bg-[#142536]">
-                      {videoId ? (
-                        <VideoPreview video={video} videoId={videoId} />
+                      {playable ? (
+                        <VideoPreview
+                          video={video}
+                          overlay={{
+                            label: video.projectSlug ? projects.find((p) => p.slug === video.projectSlug)?.name : "",
+                            title: video.title,
+                            channel: videoChannel(video).name,
+                            compact: true,
+                          }}
+                        />
                       ) : (
                         <div className="flex h-full items-center justify-center text-white">
                           <img
@@ -673,10 +480,10 @@ export default function Videos() {
                         </div>
                       )}
                     </div>
-                    <div className="p-5 sm:p-6">
-                      <h2 className="font-display text-xl font-semibold text-[#142536]">
-                        {video.title}
-                      </h2>
+                    <div className="p-5">
+                      {videoKey && (
+                        <VideoActions videoId={videoKey} url={video.url} title={video.title} compactLayout />
+                      )}
                       {video.projectSlug && (
                         <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-[#8d6c32]">
                           Guide for{" "}
@@ -690,31 +497,13 @@ export default function Videos() {
                           {video.description}
                         </p>
                       )}
-                      {managerOpen && isOwner && (
-                        <div className="mt-5 flex gap-2 border-t border-[#e7e2d8] pt-4">
-                          <button
-                            type="button"
-                            onClick={() => editVideo(video)}
-                            className="inline-flex items-center gap-2 rounded-full border border-[#d9dce0] px-4 py-2 text-xs font-semibold text-[#263746] transition hover:border-[#c9a45c] hover:text-[#8d6c32]"
-                          >
-                            <Pencil size={14} /> Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteVideo(video)}
-                            className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-50"
-                          >
-                            <Trash2 size={14} /> Delete
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </article>
                 );
               })}
             </div>
           ) : (
-            !managerOpen && (
+            !editor && (
               <div className="order-1 rounded-3xl border border-dashed border-[#d9dce0] bg-[#fbfaf7] px-6 py-16 text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eee3cc] text-[#8d6c32]">
                   <Play size={24} />
@@ -734,33 +523,33 @@ export default function Videos() {
 
       <section className="pb-12 sm:pb-16">
         <div className="container-luxury">
-          <div className="relative isolate grid items-center gap-6 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d1b2a] via-[#142536] to-[#24405a] p-6 text-white sm:p-10 lg:grid-cols-[1.3fr_1fr]">
+          <div className="relative isolate grid items-center gap-6 overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 via-white to-[#fbf8f2] p-6 text-[#142536] sm:p-10 lg:grid-cols-[1.3fr_1fr]">
             <div
-              className="pointer-events-none absolute -right-20 -top-20 -z-10 size-72 rounded-full bg-[#c9a45c]/25 blur-3xl"
+              className="pointer-events-none absolute -right-20 -top-20 -z-10 size-72 rounded-full bg-rose-200/40 blur-3xl"
               aria-hidden="true"
             />
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[.2em] text-[#e1c98f]">
+              <p className="text-[11px] font-bold uppercase tracking-[.2em] text-rose-700">
                 Seen something you like?
               </p>
-              <h2 className="mt-2 font-display text-2xl font-semibold !text-white sm:text-3xl">
+              <h2 className="mt-2 font-display text-2xl font-semibold !text-[#142536] sm:text-3xl">
                 Book a guided site visit
               </h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/70">
+              <p className="mt-2 max-w-xl text-sm leading-6 text-[#5e6872]">
                 Videos are a great start. Visit in person with our team to see
                 the location, layouts and amenities before you decide.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
               <Link
-                to="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#c9a45c] px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-[#142536] transition hover:bg-[#e1c98f]"
+                to="/book-visit"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-rose-600 px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-white transition hover:bg-rose-700"
               >
                 <CalendarCheck size={16} aria-hidden="true" /> Plan a visit
               </Link>
               <Link
                 to="/projects"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#142536]/20 bg-white px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-[#142536] transition hover:border-rose-400"
               >
                 Browse projects
               </Link>
@@ -768,6 +557,16 @@ export default function Videos() {
           </div>
         </div>
       </section>
+
+      {isOwner && editor && (
+        <VideoEditorDialog
+          initial={editor.video}
+          focus={editor.focus}
+          onSave={saveFromEditor}
+          onDelete={editor.video?.id ? () => deleteVideo(editor.video) : undefined}
+          onClose={closeEditor}
+        />
+      )}
     </>
   );
 }

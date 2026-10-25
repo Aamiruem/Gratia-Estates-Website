@@ -5,12 +5,12 @@ import {
   FileCheck2,
   Landmark,
   MapPin,
-  Phone,
   Scale,
   SlidersHorizontal,
   Wallet,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import CallIcon from "../components/CallIcon";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageHero from "../components/PageHero";
 import ProjectCard from "../components/ProjectCard";
@@ -53,6 +53,11 @@ export default function Projects() {
   const [filter, setFilter] = useState(
     filters.includes(requestedStage) ? requestedStage : "All",
   );
+  // Follow ?stage= changes too (e.g. picking a stage from the nav dropdown
+  // while already on this page).
+  useEffect(() => {
+    setFilter(filters.includes(requestedStage) ? requestedStage : "All");
+  }, [requestedStage]);
   const filtered = useMemo(
     () =>
       filter === "All" ? projects : projects.filter((p) => p.status === filter),
@@ -105,8 +110,8 @@ export default function Projects() {
                   Call +91 91097 76155
                 </strong>
               </span>
-              <span className="grid size-11 place-items-center rounded-full bg-[#c9a45c] text-[#142536]">
-                <Phone size={18} aria-hidden="true" />
+              <span className="grid size-11 place-items-center rounded-full bg-[#34C759] text-white">
+                <CallIcon size={20} />
               </span>
             </a>
           </div>
@@ -170,26 +175,26 @@ export default function Projects() {
               ))}
             </ul>
           </div>
-          <div className="relative isolate flex flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d1b2a] via-[#142536] to-[#24405a] p-6 text-white sm:p-8">
+          <div className="relative isolate flex flex-col justify-between overflow-hidden rounded-3xl border border-[#d9b873] bg-gradient-to-br from-[#f7ead0] via-[#efd9a8] to-[#e2c27f] p-6 text-[#142536] sm:p-8">
             <div
-              className="pointer-events-none absolute -right-16 -top-16 -z-10 size-56 rounded-full bg-[#c9a45c]/25 blur-3xl"
+              className="pointer-events-none absolute -right-16 -top-16 -z-10 size-56 rounded-full bg-white/50 blur-3xl"
               aria-hidden="true"
             />
             <div>
-              <span className="grid size-12 place-items-center rounded-2xl bg-[#c9a45c] text-[#142536]">
+              <span className="grid size-12 place-items-center rounded-2xl bg-[#142536] text-[#e1c98f]">
                 <CalendarCheck size={22} aria-hidden="true" />
               </span>
-              <h2 className="mt-5 font-display text-2xl font-semibold !text-white sm:text-3xl">
+              <h2 className="mt-5 font-display text-2xl font-semibold !text-[#142536] sm:text-3xl">
                 Can't find the right fit?
               </h2>
-              <p className="mt-2 text-sm leading-6 text-white/70">
+              <p className="mt-2 text-sm leading-6 text-[#142536]/75">
                 Tell us your budget, preferred sector and timeline. We'll
                 suggest relevant options and help arrange site visits.
               </p>
             </div>
             <Link
               to="/contact"
-              className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-[#c9a45c] px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-[#142536] transition hover:bg-[#e1c98f]"
+              className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-[#142536] px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-white transition hover:bg-white hover:text-[#142536]"
             >
               Share your requirement <ArrowRight size={15} aria-hidden="true" />
             </Link>

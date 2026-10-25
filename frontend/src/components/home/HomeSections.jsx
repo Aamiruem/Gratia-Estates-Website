@@ -24,6 +24,7 @@ import {
   Sparkles,
   Trees,
   Users,
+  Wallet,
   Waves,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -217,7 +218,7 @@ export function VideoTeaser() {
               <Play size={16} fill="currentColor" aria-hidden="true" /> Watch videos
             </Link>
             <Link
-              to="/contact"
+              to="/book-visit"
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-xs font-bold uppercase tracking-[.12em] text-white transition hover:border-[#c9a45c] hover:text-[#e1c98f]"
             >
               <CalendarCheck size={16} aria-hidden="true" /> Book a site visit
@@ -615,5 +616,47 @@ export function HomeStructuredData() {
         }}
       />
     </>
+  );
+}
+
+// Home-only closing block: pick a budget and get a shortlist on WhatsApp.
+const BUDGETS = ["Under ₹2 Cr", "₹2–3 Cr", "₹3–5 Cr", "₹5 Cr+"];
+
+export function ShortlistCTA() {
+  const link = (budget) =>
+    `https://wa.me/919109776155?text=${encodeURIComponent(
+      `Hello Gratia Estates, please share a shortlist of Gurgaon projects in my budget: ${budget}.`,
+    )}`;
+  return (
+    <section className="bg-[#c9a45c] py-10 sm:py-12">
+      <div className="container-luxury grid items-center gap-6 lg:grid-cols-[1fr_auto]">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[.22em] text-[#142536]/70">
+            Quick shortlist
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-[#142536] sm:text-3xl">
+            What's your budget? We'll send matching projects.
+          </h2>
+          <p className="mt-2 text-sm text-[#142536]/75">
+            Tap a range and WhatsApp opens with your request ready to send.
+          </p>
+        </div>
+        <ul className="flex flex-wrap gap-2.5">
+          {BUDGETS.map((budget) => (
+            <li key={budget}>
+              <a
+                href={link(budget)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#142536] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-white hover:text-[#142536]"
+              >
+                <Wallet size={16} className="text-[#e1c98f]" aria-hidden="true" />
+                {budget}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
