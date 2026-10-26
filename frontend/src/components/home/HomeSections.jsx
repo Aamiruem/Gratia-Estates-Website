@@ -30,6 +30,7 @@ import {
 import { Link } from "react-router-dom";
 import { BlogCard, JsonLd } from "../blog";
 import { posts } from "../../data/blog";
+import { SITE_URL as SITE } from "../../config/site";
 import { projects } from "../../data/projects";
 
 const developers = [...new Set(projects.map((p) => p.developer).filter(Boolean))];
@@ -279,7 +280,6 @@ export function LatestInsights() {
   );
 }
 
-const SITE = "https://www.gratiaestates.com";
 
 // Redesigned "considered property journey": image + numbered pillars.
 export function JourneySection() {

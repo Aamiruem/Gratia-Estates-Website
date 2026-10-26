@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /video-admin/
-
-Sitemap: https://www.gratiaestates.com/sitemap.xml

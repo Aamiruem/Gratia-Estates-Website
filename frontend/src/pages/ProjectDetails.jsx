@@ -29,6 +29,7 @@ import { authApi } from "../services/authApi";
 import { projects } from "../data/projects";
 import { formatWhatsAppMessage, openWhatsApp } from "../utils/whatsapp";
 import { recordProjectView, similarProjects } from "../utils/recommender";
+import { SITE_URL } from "../config/site";
 import {
   fetchVideos,
   getYouTubeVideoId,
@@ -164,7 +165,7 @@ export default function ProjectDetails() {
           name: project.name,
           description: project.description,
           image: project.image,
-          url: `https://www.gratiaestates.com/projects/${project.slug}`,
+          url: `${SITE_URL}/projects/${project.slug}`,
           address: {
             "@type": "PostalAddress",
             streetAddress: project.location.replace(/,\s*Gurgaon$/, ""),
@@ -184,9 +185,9 @@ export default function ProjectDetails() {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://www.gratiaestates.com/" },
-            { "@type": "ListItem", position: 2, name: "Projects", item: "https://www.gratiaestates.com/projects" },
-            { "@type": "ListItem", position: 3, name: project.name, item: `https://www.gratiaestates.com/projects/${project.slug}` },
+            { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+            { "@type": "ListItem", position: 2, name: "Projects", item: `${SITE_URL}/projects` },
+            { "@type": "ListItem", position: 3, name: project.name, item: `${SITE_URL}/projects/${project.slug}` },
           ],
         }}
       />

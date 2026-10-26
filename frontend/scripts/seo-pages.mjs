@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { projects } from "../src/data/projects.js";
 import { posts } from "../src/data/blogs.js";
 
-const SITE = "https://www.gratiaestates.com";
+import { SITE_URL as SITE } from "../site.config.js";
 const DIST = join(dirname(fileURLToPath(import.meta.url)), "..", "dist");
 const DEFAULT_IMAGE = `${SITE}/assets/logo-primary.png`;
 
@@ -76,5 +76,9 @@ const sitemap = [
   "",
 ].join("\n");
 await writeFile(join(DIST, "sitemap.xml"), sitemap);
+await writeFile(
+  join(DIST, "robots.txt"),
+  ["User-agent: *", "Allow: /", "Disallow: /video-admin/", "", `Sitemap: ${SITE}/sitemap.xml`, ""].join("\n"),
+);
 
 console.log(`SEO: wrote ${pages.length} page files and a sitemap with ${sitemap.match(/<url>/g).length} URLs.`);

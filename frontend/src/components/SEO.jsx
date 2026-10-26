@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 
-const SITE = "https://www.gratiaestates.com";
+import { SITE_URL as SITE } from "../config/site";
 const DEFAULT_IMAGE = `${SITE}/assets/logo-primary.png`;
 
 export default function SEO({

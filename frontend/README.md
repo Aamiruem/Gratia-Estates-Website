@@ -1,4 +1,4 @@
-# Gratia Estates — React + Tailwind Website
+﻿# Gratia Estates — React + Tailwind Website
 
 Premium Gurgaon-focused real estate advisory website based on the supplied Gratia Estates brand board.
 
@@ -54,7 +54,7 @@ that the signed-in email matches the configured owner email before allowing any
 write operation, and public visitors can still read the video list.
 
 ## Before launch
-1. Replace `https://www.gratiaestates.com` in `src/components/SEO.jsx`, `public/robots.txt`, and `public/sitemap.xml` if your final domain is different.
+1. Set the public address in `site.config.js` (or the `SITE_URL` environment variable). Canonical links, structured data, `sitemap.xml` and `robots.txt` are all generated from it at build time.
 2. Replace sample project data with verified project information, prices, RERA details, developer names and official project images.
 3. Replace social profile links in `src/components/Footer.jsx` with Gratia Estates' real profiles.
 4. Add Google Search Console and Google Analytics/Tag Manager after the final domain is live.

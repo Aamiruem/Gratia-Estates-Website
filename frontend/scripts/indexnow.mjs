@@ -3,7 +3,7 @@
 // sitemap. Run after a deploy once the domain points at this site:
 //   npm run indexnow
 // The key file public/<KEY>.txt proves the site owns the submission.
-const SITE = "https://www.gratiaestates.com";
+import { SITE_URL as SITE } from "../site.config.js";
 const KEY = "9382e63d4267035f03f3238a06a4a247";
 
 const keyResponse = await fetch(`${SITE}/${KEY}.txt`);

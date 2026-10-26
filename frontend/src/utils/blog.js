@@ -1,4 +1,4 @@
-const siteUrl = "https://www.gratiaestates.com";
+import { SITE_URL as siteUrl } from "../config/site";
 
 export function getReadingTime(post) {
   const content = [
