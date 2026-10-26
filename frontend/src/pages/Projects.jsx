@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageHero from "../components/PageHero";
 import ProjectCard from "../components/ProjectCard";
+import RecommendedProjects from "../components/RecommendedProjects";
 import SEO from "../components/SEO";
 import { projects } from "../data/projects";
 
@@ -151,6 +152,8 @@ export default function Projects() {
           )}
         </div>
       </section>
+
+      <RecommendedProjects className="pb-12 sm:pb-16" />
 
       <section className="pb-12 sm:pb-16">
         <div className="container-luxury grid gap-6 lg:grid-cols-[1.4fr_1fr]">

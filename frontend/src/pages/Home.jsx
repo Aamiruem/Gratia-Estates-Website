@@ -18,6 +18,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SEO from "../components/SEO";
 import ProjectCard from "../components/ProjectCard";
+import RecommendedProjects from "../components/RecommendedProjects";
 import {
   AmenitiesShowcase,
   BrowseByStage,
@@ -638,6 +639,8 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <RecommendedProjects className="pb-12 sm:pb-16" />
 
       <BrowseByStage />
 

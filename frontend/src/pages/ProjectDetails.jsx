@@ -28,6 +28,7 @@ import VideoActions, { VideoInfo } from "../components/VideoActions";
 import { authApi } from "../services/authApi";
 import { projects } from "../data/projects";
 import { formatWhatsAppMessage, openWhatsApp } from "../utils/whatsapp";
+import { recordProjectView, similarProjects } from "../utils/recommender";
 import {
   fetchVideos,
   getYouTubeVideoId,
@@ -62,16 +63,12 @@ export default function ProjectDetails() {
   const galleryImages = project
     ? [project.image, ...(project.gallery ?? [])].filter(Boolean)
     : [];
-  // Same-type projects first, then others, so the row always has 3 cards.
-  const suggestedProjects = project
-    ? projects
-        .filter((item) => item.slug !== project.slug)
-        .sort(
-          (a, b) =>
-            Number(b.type === project.type) - Number(a.type === project.type),
-        )
-        .slice(0, 3)
-    : [];
+  // Ranked by the content-based recommender (budget, sector, stage, features).
+  const suggestedProjects = project ? similarProjects(project.slug, 3) : [];
+
+  useEffect(() => {
+    if (project) recordProjectView(project.slug);
+  }, [project]);
   const amenityFeatures = project
     ? [...new Set([...project.highlights, ...sharedFeatures])].slice(0, 8)
     : [];
@@ -694,10 +691,11 @@ export default function ProjectDetails() {
             </p>
             <h2 className="mt-2 font-display text-4xl">Similar Properties</h2>
             <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {suggestedProjects.map((suggestedProject) => (
+              {suggestedProjects.map(({ project: suggestedProject, reasons }) => (
                 <ProjectCard
                   key={suggestedProject.slug}
                   project={suggestedProject}
+                  reasons={reasons}
                 />
               ))}
             </div>

@@ -29,6 +29,47 @@
   <meta property="og:description" content="Compare new launch, under-construction and ready-to-move residential projects in Gurgaon with focused local guidance." />
   <meta property="og:image" content="https://www.gratiaestates.com/assets/logo-primary.png" />
   <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Structured data in the static HTML so crawlers see it without running
+       JavaScript. "WebSite" sets the site name Google shows in results. -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://www.gratiaestates.com/#website",
+          "name": "Gratia Estates",
+          "alternateName": ["Gratia Estate", "GratiaEstates", "gratiaestates.com"],
+          "url": "https://www.gratiaestates.com/",
+          "publisher": { "@id": "https://www.gratiaestates.com/#organization" }
+        },
+        {
+          "@type": "RealEstateAgent",
+          "@id": "https://www.gratiaestates.com/#organization",
+          "name": "Gratia Estates",
+          "alternateName": "Gratia Estate",
+          "url": "https://www.gratiaestates.com/",
+          "logo": "https://www.gratiaestates.com/assets/logo-primary.png",
+          "image": "https://www.gratiaestates.com/assets/logo-primary.png",
+          "description": "Gurgaon-focused real estate advisory for new launch, under-construction and ready-to-move residential projects.",
+          "telephone": "+91-9109776155",
+          "email": "purwarmanish@gmail.com",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Iworkk Coworking Office Space, 90 IDC",
+            "addressLocality": "Gurgaon",
+            "addressRegion": "Haryana",
+            "addressCountry": "IN"
+          },
+          "areaServed": [
+            { "@type": "City", "name": "Gurgaon" },
+            { "@type": "AdministrativeArea", "name": "Delhi NCR" }
+          ]
+        }
+      ]
+    }
+  </script>
   <meta name="geo.region" content="IN-HR" />
   <meta name="geo.placename" content="Gurgaon" />
 

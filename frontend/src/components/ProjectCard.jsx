@@ -1,7 +1,8 @@
 import { ArrowUpRight, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function ProjectCard({ project }) {
+// `reasons` (optional): short labels from the recommender, e.g. "Similar budget".
+export default function ProjectCard({ project, reasons = [] }) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-black/10 bg-white shadow-luxury transition hover:-translate-y-1">
       <Link to={`/projects/${project.slug}`} className="block">
@@ -24,6 +25,15 @@ export default function ProjectCard({ project }) {
             {project.name}
           </h3>
           <p className="mt-2 text-sm text-black/50">{project.developer}</p>
+          {reasons.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {reasons.map((reason) => (
+                <span key={reason} className="rounded-full bg-[#f6efe0] px-2.5 py-1 text-[11px] font-semibold text-[#80602b]">
+                  {reason}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="mt-5 flex items-end justify-between gap-3 border-t border-black/10 pt-5">
             <div>
               <span className="block text-[10px] font-bold uppercase tracking-[.15em] text-black/40">
