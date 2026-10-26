@@ -18,6 +18,7 @@ import {
 import CallIcon from "./CallIcon";
 import { projects } from "../data/projects";
 import Logo from "./Logo";
+import SiteSearch from "./SiteSearch";
 
 // Each item has its own icon colour so the menu is easy to scan.
 const nav = [
@@ -115,6 +116,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <SiteSearch className="h-11 justify-center px-3 lg:px-4" />
             <a
               href={TEL}
               className="hidden items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-4 transition hover:bg-[#f7f4ed] 2xl:inline-flex"
